@@ -1,13 +1,13 @@
 import { createApp } from 'vue'
 import { createRouter, createWebHashHistory } from 'vue-router'
-import { addCollection } from '@iconify/vue'
+import { addCollection } from '@iconify/vue/dist/iconify.mjs'
 import App from './App.vue'
 import VueFluentWidgets from 'vue-fluent-widgets'
 import 'vue-fluent-widgets/style.css'
 
 // 导入 Fluent 图标集
-import * as fluentIcons from '@iconify-json/fluent'
-addCollection(fluentIcons.default || fluentIcons)
+import { icons as fluentIcons } from '@iconify-json/fluent'
+addCollection(fluentIcons)
 
 const routes = [
   { path: '/', component: () => import('./views/Home.vue') },
@@ -65,7 +65,8 @@ const routes = [
   { path: '/transitions', component: () => import('./views/TransitionsDemo.vue') },
   { path: '/gestures', component: () => import('./views/GesturesDemo.vue') },
   { path: '/material', component: () => import('./views/MaterialDemo.vue') },
-  { path: '/mediaplayer', component: () => import('./views/MediaPlayerDemo.vue') }
+  { path: '/mediaplayer', component: () => import('./views/MediaPlayerDemo.vue') },
+  { path: '/:pathMatch(.*)*', redirect: '/' }
 ]
 
 const router = createRouter({

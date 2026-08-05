@@ -13,7 +13,7 @@
         <div class="demo-row">
           <FluentHyperlinkButton 
             label="访问 GitHub" 
-            href="https://github.com"
+            href="https://github.com/Cyrene2008"
             target="_blank"
           />
           <FluentHyperlinkButton 
@@ -47,12 +47,12 @@
         <div class="demo-row">
           <FluentHyperlinkButton 
             label="新窗口打开" 
-            href="https://github.com"
+            href="https://github.com/Cyrene2008"
             target="_blank"
           />
           <FluentHyperlinkButton 
             label="当前窗口" 
-            href="https://github.com"
+            href="https://github.com/Cyrene2008"
             target="_self"
           />
         </div>
@@ -70,7 +70,7 @@ const onInternalClick = () => {
 
 const basicCode = `<FluentHyperlinkButton 
   label="访问 GitHub" 
-  href="https://github.com"
+  href="https://github.com/Cyrene2008"
   target="_blank"
 />
 <FluentHyperlinkButton 
@@ -86,12 +86,12 @@ const disabledCode = `<FluentHyperlinkButton
 
 const targetCode = `<FluentHyperlinkButton 
   label="新窗口打开" 
-  href="https://github.com"
+  href="https://github.com/Cyrene2008"
   target="_blank"
 />
 <FluentHyperlinkButton 
   label="当前窗口" 
-  href="https://github.com"
+  href="https://github.com/Cyrene2008"
   target="_self"
 />`
 </script>

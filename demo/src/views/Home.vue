@@ -6,11 +6,11 @@
         基于 Fluent Design System 的 Vue 3 组件库，提供 100+ 组件，支持 Acrylic、Mica、Liquid Glass 等材质效果。
       </p>
       <div class="hero-actions">
-        <FluentButton variant="primary" size="lg" @click="$router.push('/button')">
-          开始使用
+        <FluentButton variant="primary" size="lg" @click="openRepository">
+          查看 GitHub 仓库
         </FluentButton>
-        <FluentButton variant="secondary" size="lg" @click="$router.push('/material')">
-          查看材质效果
+        <FluentButton variant="secondary" size="lg" @click="$router.push('/button')">
+          浏览组件
         </FluentButton>
       </div>
     </div>
@@ -98,13 +98,15 @@
       </div>
     </div>
 
-    <DemoFooter />
   </div>
 </template>
 
 <script setup>
 import { FluentIcon, FluentButton, FluentCard, FluentLiquidGlass } from 'vue-fluent-widgets'
-import DemoFooter from '../components/DemoFooter.vue'
+
+const openRepository = () => {
+  window.open('https://github.com/Cyrene2008/VueFluentWidgets', '_blank', 'noopener,noreferrer')
+}
 
 const categories = [
   {
@@ -143,8 +145,7 @@ const categories = [
     items: [
       { id: 'material', label: '材质系统', to: '/material' },
       { id: 'mediaplayer', label: '媒体播放器', to: '/mediaplayer' },
-      { id: 'datagrid', label: 'DataGrid', to: '/datagrid' },
-      { id: 'rating', label: 'Rating', to: '/rating' }
+        { id: 'rating', label: 'Rating', to: '/rating' }
     ]
   }
 ]

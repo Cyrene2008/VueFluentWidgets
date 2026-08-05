@@ -1,37 +1,22 @@
 <template>
   <div class="demo-app">
-    <nav class="demo-nav">
-      <div class="nav-header">
-        <button class="hamburger-button" @click="toggleSidebar">
-          <FluentIcon icon="global-nav-button-20-regular" :width="20" />
-        </button>
-        <h1>Vue Fluent Widgets</h1>
-      </div>
-      <SecondarySidebarMenu 
-        :items="navItems" 
-        :open="isSidebarOpen" 
-        @back="toggleSidebar"
-      />
-    </nav>
+    <NavigationDock :items="navItems" />
     <div class="demo-main">
       <main class="demo-content">
-        <router-view />
+        <router-view v-slot="{ Component, route }">
+          <Transition name="route-view" mode="out-in">
+            <component :is="Component" :key="route.path" />
+          </Transition>
+        </router-view>
+        <DemoFooter />
       </main>
-      <DemoFooter />
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { SecondarySidebarMenu, FluentIcon } from 'vue-fluent-widgets'
+import NavigationDock from './components/NavigationDock.vue'
 import DemoFooter from './components/DemoFooter.vue'
-
-const isSidebarOpen = ref(true)
-
-const toggleSidebar = () => {
-  isSidebarOpen.value = !isSidebarOpen.value
-}
 
 const navItems = [
   { id: 'home', label: '首页', to: '/', icon: 'home' },
@@ -114,15 +99,15 @@ const navItems = [
 </script>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;500;600&display=swap');
-
 :root {
-  --font-ui: 'Segoe UI', sans-serif;
+  --fluent-accent: #ea5ec1;
+  --font-ui: 'MiSans', 'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif;
   --radius-md: 4px;
   --duration-fast: 0.1s;
-  --accent: #0078d4;
-  --accent-dark: #006cbd;
-  --accent-hover: #005a9e;
+  --accent: var(--fluent-accent);
+  --accent-light: color-mix(in srgb, var(--accent), white 34%);
+  --accent-dark: color-mix(in srgb, var(--accent), black 18%);
+  --accent-hover: color-mix(in srgb, var(--accent), black 12%);
   --text-on-accent: #ffffff;
   --text-primary: #1a1a1a;
   --text-secondary: #616161;
@@ -149,71 +134,48 @@ body {
 
 .demo-app {
   display: flex;
-  min-height: 100vh;
+  width: 100%;
+  height: 100vh;
+  min-height: 0;
 }
 
 .demo-main {
   flex: 1;
+  min-width: 0;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
-}
-
-.demo-nav {
-  width: 280px;
-  background: var(--bg-card);
-  border-right: 1px solid var(--border-strong);
-  padding: 20px;
-  overflow-y: auto;
-}
-
-.demo-nav h1 {
-  font-size: 20px;
-  margin-bottom: 20px;
-  color: var(--accent);
 }
 
 .demo-content {
   flex: 1;
+  min-height: 0;
   padding: 40px;
-  max-width: 1200px;
-  margin: 0 auto;
   width: 100%;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
-/* 多级菜单样式 */
-.secondary-sidebar-menu__children {
-  padding-left: 20px;
-  overflow: hidden;
+.route-view-enter-active,
+.route-view-leave-active {
+  transition: opacity var(--duration-normal) var(--ease-standard), transform var(--duration-normal) var(--ease-standard);
 }
 
-.secondary-sidebar-menu__parent {
-  justify-content: space-between;
-}
-
-.secondary-sidebar-menu__chevron {
-  transition: transform 0.2s ease;
-  margin-left: auto;
-}
-
-.secondary-sidebar-menu__chevron.rotated {
-  transform: rotate(180deg);
-}
-
-.expand-enter-active,
-.expand-leave-active {
-  transition: all 0.2s ease;
-  max-height: 500px;
-  opacity: 1;
-}
-
-.expand-enter-from,
-.expand-leave-to {
-  max-height: 0;
+.route-view-enter-from {
   opacity: 0;
-  padding-top: 0;
-  padding-bottom: 0;
+  transform: translateX(18px);
+}
+
+.route-view-leave-to {
+  opacity: 0;
+  transform: translateX(-10px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .route-view-enter-active,
+  .route-view-leave-active {
+    transition: none;
+  }
 }
 
 .demo-section {
