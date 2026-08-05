@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
+import { fileURLToPath } from 'node:url'
 import { resolve } from 'path'
 
 export default defineConfig({
@@ -7,7 +8,10 @@ export default defineConfig({
   plugins: [vue()],
   resolve: {
     alias: {
-      '@': resolve(__dirname, 'src')
+      '@': resolve(__dirname, 'src'),
+      'vue-fluent-widgets': fileURLToPath(
+        new URL('../packages/vue-fluent-widgets/src/index.js', import.meta.url)
+      )
     }
   },
   server: {
