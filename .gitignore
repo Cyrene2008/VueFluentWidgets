@@ -5,6 +5,7 @@ node_modules/
 # Build outputs
 dist/
 packages/*/dist/
+demo/dist/
 
 # IDE
 .vscode/
@@ -39,3 +40,7 @@ src-tauri/target/
 # Temporary files
 *.tmp
 *.temp
+
+# Lock files (optional, keep pnpm-lock.yaml)
+# package-lock.json
+# yarn.lock

@@ -30,7 +30,7 @@
 </template>
 
 <script setup>
-import FluentIcon from './FluentIcon.vue'
+import { FluentIcon } from 'vue-fluent-widgets'
 </script>
 
 <style scoped>
