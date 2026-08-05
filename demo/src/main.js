@@ -6,8 +6,8 @@ import VueFluentWidgets from 'vue-fluent-widgets'
 import 'vue-fluent-widgets/style.css'
 
 // 导入 Fluent 图标集
-import fluentIcons from '@iconify-json/fluent'
-addCollection(fluentIcons)
+import * as fluentIcons from '@iconify-json/fluent'
+addCollection(fluentIcons.default || fluentIcons)
 
 const routes = [
   { path: '/', component: () => import('./views/Home.vue') },
