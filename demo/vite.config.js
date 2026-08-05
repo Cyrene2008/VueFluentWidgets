@@ -7,12 +7,15 @@ export default defineConfig({
   base: process.env.VITE_BASE_PATH || '/',
   plugins: [vue()],
   resolve: {
-    alias: {
-      '@': resolve(__dirname, 'src'),
-      'vue-fluent-widgets': fileURLToPath(
-        new URL('../packages/vue-fluent-widgets/src/index.js', import.meta.url)
-      )
-    }
+    alias: [
+      { find: '@', replacement: resolve(__dirname, 'src') },
+      {
+        find: /^vue-fluent-widgets$/,
+        replacement: fileURLToPath(
+          new URL('../packages/vue-fluent-widgets/src/index.js', import.meta.url)
+        )
+      }
+    ]
   },
   server: {
     port: 5174
