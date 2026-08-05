@@ -1,0 +1,20 @@
+{
+  "name": "vue-fluent-widgets",
+  "version": "0.1.0",
+  "description": "A collection of Fluent Design System (WinUI3) components for Vue",
+  "author": "Cyrene2008 <https://github.com/Cyrene2008>",
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm -C demo dev",
+    "build": "pnpm -C packages/vue-fluent-widgets build",
+    "build:demo": "pnpm -C demo build",
+    "preview": "pnpm -C demo preview",
+    "test": "echo \"No tests specified\" && exit 0"
+  },
+  "keywords": ["vue", "fluent", "design-system", "winui3", "components"],
+  "license": "LGPL-2.1-only",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "packageManager": "pnpm@9.0.0"
+}
