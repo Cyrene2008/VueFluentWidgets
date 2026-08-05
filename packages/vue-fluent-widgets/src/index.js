@@ -220,6 +220,13 @@ export {
 
 export default {
   install(app) {
+    if (import.meta.env.DEV) {
+      console.info(
+        'VueFluentWidgets © 2026 Cyrene2008 | MIT License\n' +
+        'Please retain attribution as required by the license.'
+      )
+    }
+
     app.component('FluentAnimatedIcon', FluentAnimatedIcon)
     app.component('FluentAppBarButton', FluentAppBarButton)
     app.component('FluentAppBarSeparator', FluentAppBarSeparator)
