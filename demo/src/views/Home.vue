@@ -79,18 +79,21 @@
       <div class="material-preview-grid">
         <div class="material-preview-item">
           <FluentCard material="solid" class="material-card">
+            <FluentIcon icon="layer-20-regular" :width="32" />
             <h3>Solid</h3>
             <p>默认不透明背景</p>
           </FluentCard>
         </div>
         <div class="material-preview-item">
           <FluentLiquidGlass variant="light" class="material-card">
+            <FluentIcon icon="sparkle-20-regular" :width="32" />
             <h3>Liquid Glass</h3>
             <p>液态玻璃效果</p>
           </FluentLiquidGlass>
         </div>
         <div class="material-preview-item">
           <FluentLiquidGlass variant="dark" class="material-card">
+            <FluentIcon icon="weather-moon-20-regular" :width="32" />
             <h3>Dark Glass</h3>
             <p>深色液态玻璃</p>
           </FluentLiquidGlass>
