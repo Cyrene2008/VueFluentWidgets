@@ -78,3 +78,11 @@ const app = createApp(App)
 app.use(router)
 app.use(VueFluentWidgets)
 app.mount('#app')
+
+if (import.meta.env.DEV) {
+  console.info(
+    'Vue Fluent Widgets Demo © 2026 Cyrene2008 | MIT License\n' +
+    '请保留署名信息，详见许可证要求。\n' +
+    'Please retain attribution as required by the license.'
+  )
+}
