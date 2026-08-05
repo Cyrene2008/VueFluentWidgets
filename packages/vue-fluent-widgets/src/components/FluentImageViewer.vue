@@ -1,10 +1,12 @@
 <template>
-  <div class="fluent-image-viewer" :class="{ 'is-loading': isLoading, 'has-error': hasError }">
+  <div class="fluent-image-viewer" :class="{ 'is-loading': isLoading, 'has-error': hasError, clickable }">
     <img
       v-if="!hasError"
       :src="src"
       :alt="alt"
       :style="imageStyle"
+      loading="lazy"
+      decoding="async"
       @load="onLoad"
       @error="onError"
       @click="onImageClick"

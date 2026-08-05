@@ -12,11 +12,11 @@
       <template #example>
         <div class="player-container">
           <FluentMediaPlayer 
-            src="/loop.mp4"
-            poster="/images/Cyrene01.webp"
+            :src="asset('loop.mp4')"
+            :poster="asset('images/Cyrene01.webp')"
             class="demo-player"
           />
-          <FluentInfoBar severity="info" title="版权声明" description="以上视频仅供非商业用途展示使用，版权归米哈游所有" />
+          <FluentInfoBar severity="info" title="视频素材版权声明" message="视频素材来源于《崩坏：星穹铁道》相关内容，原始版权归 miHoYo / HoYoverse 及其他原权利人所有。本页面仅用于 Vue Fluent Widgets 组件演示，不主张相关素材权利。" :closable="false" />
         </div>
       </template>
     </FluentControlExample>
@@ -28,10 +28,14 @@
       <template #example>
         <div class="audio-container">
           <FluentMediaPlayer 
-            src="/trimmed_NewPage.mp3"
+            :src="asset('trimmed_NewPage.mp3')"
+            :poster="asset('images/avatar.webp')"
+            type="audio"
+            title="New Page"
+            artist="Cyrene2008"
             class="demo-audio"
           />
-          <FluentInfoBar severity="info" title="版权声明" description="以上音频仅供非商业用途展示使用，版权归米哈游所有" />
+          <FluentInfoBar severity="info" title="音频素材版权声明" message="音频素材来源于《崩坏：星穹铁道》相关内容，原始版权归 miHoYo / HoYoverse 及其他原权利人所有。本页面仅用于 Vue Fluent Widgets 组件演示，不主张相关素材权利。" :closable="false" />
         </div>
       </template>
     </FluentControlExample>
@@ -41,20 +45,43 @@
       :source-code="galleryCode"
     >
       <template #example>
-        <div class="image-gallery">
-          <div v-for="(image, index) in images" :key="index" class="gallery-item">
-            <FluentImageViewer 
-              :src="image.src" 
-              :alt="image.alt"
-              :caption="image.caption"
-              clickable
-              @click="selectedImage = image"
-            />
+        <div class="gallery-container">
+          <div class="image-gallery">
+            <div v-for="(image, index) in images" :key="index" class="gallery-item">
+              <FluentImageViewer
+                :src="image.src"
+                :alt="image.alt"
+                :caption="image.caption"
+                width="100%"
+                :height="180"
+                fit="cover"
+                clickable
+                @click="openImage(image)"
+              />
+            </div>
           </div>
+          <FluentInfoBar severity="info" title="图片素材版权声明" message="图片素材来源于《崩坏：星穹铁道》相关内容，原始版权归 miHoYo / HoYoverse 及其他原权利人所有。本页面仅用于 Vue Fluent Widgets 组件演示，不主张相关素材权利。" :closable="false" />
         </div>
-        <FluentInfoBar severity="info" title="版权声明" description="以上图片仅供非商业用途展示使用，版权归米哈游所有" />
       </template>
     </FluentControlExample>
+
+    <div v-if="selectedImage" class="image-preview" role="dialog" aria-modal="true" @click.self="selectedImage = null" @wheel.prevent="onPreviewWheel">
+      <div class="image-preview__toolbar" role="toolbar" aria-label="图片查看工具">
+        <button type="button" aria-label="缩小" @click="changeZoom(-0.2)"><FluentIcon icon="zoom-out-20-regular" :width="20" /></button>
+        <span>{{ Math.round(previewZoom * 100) }}%</span>
+        <button type="button" aria-label="放大" @click="changeZoom(0.2)"><FluentIcon icon="zoom-in-20-regular" :width="20" /></button>
+        <span class="image-preview__divider"></span>
+        <button type="button" aria-label="向左旋转" @click="previewRotation -= 90"><FluentIcon icon="arrow-rotate-counterclockwise-20-regular" :width="20" /></button>
+        <button type="button" aria-label="向右旋转" @click="previewRotation += 90"><FluentIcon icon="arrow-rotate-clockwise-20-regular" :width="20" /></button>
+        <button type="button" aria-label="重置" @click="resetPreview"><FluentIcon icon="arrow-reset-20-regular" :width="20" /></button>
+        <span class="image-preview__divider"></span>
+        <button type="button" aria-label="关闭图片预览" @click="selectedImage = null"><FluentIcon icon="dismiss-20-regular" :width="20" /></button>
+      </div>
+      <div class="image-preview__viewport">
+        <img :src="selectedImage.src" :alt="selectedImage.alt" class="image-preview__image" :style="{ transform: `scale(${previewZoom}) rotate(${previewRotation}deg)` }" />
+      </div>
+      <p>{{ selectedImage.caption }}</p>
+    </div>
 
     <FluentControlExample 
       header-text="PersonPicture 使用" 
@@ -62,13 +89,12 @@
     >
       <template #example>
         <div class="avatar-demo">
-          <FluentPersonPicture :size="64" src="/images/avatar.webp" display-name="Cyrene2008" />
+          <FluentPersonPicture :size="64" :src="asset('images/avatar.webp')" display-name="Cyrene2008" />
           <div class="avatar-info">
             <h3>Cyrene2008</h3>
             <p>项目开发者</p>
           </div>
         </div>
-        <FluentInfoBar severity="info" title="版权声明" description="头像仅供非商业用途展示使用，版权归米哈游所有" />
       </template>
     </FluentControlExample>
   </div>
@@ -81,30 +107,54 @@ import {
   FluentImageViewer, 
   FluentPersonPicture, 
   FluentInfoBar, 
-  FluentControlExample 
+  FluentControlExample,
+  FluentIcon
 } from 'vue-fluent-widgets'
 
 const selectedImage = ref(null)
+const previewZoom = ref(1)
+const previewRotation = ref(0)
+const asset = path => `${import.meta.env.BASE_URL}${path}`
 
 const images = [
-  { src: '/images/Cyrene01.webp', alt: '图片1', caption: 'Cyrene01' },
-  { src: '/images/Cyrene02.webp', alt: '图片2', caption: 'Cyrene02' },
-  { src: '/images/Cyrene03.webp', alt: '图片3', caption: 'Cyrene03' },
-  { src: '/images/Cyrene04.webp', alt: '图片4', caption: 'Cyrene04' },
-  { src: '/images/Cyrene05.webp', alt: '图片5', caption: 'Cyrene05' }
+  { src: asset('images/Cyrene01.webp'), alt: '图片1', caption: 'Cyrene01' },
+  { src: asset('images/Cyrene02.webp'), alt: '图片2', caption: 'Cyrene02' },
+  { src: asset('images/Cyrene03.webp'), alt: '图片3', caption: 'Cyrene03' },
+  { src: asset('images/Cyrene04.webp'), alt: '图片4', caption: 'Cyrene04' },
+  { src: asset('images/Cyrene05.webp'), alt: '图片5', caption: 'Cyrene05' }
 ]
 
+const resetPreview = () => {
+  previewZoom.value = 1
+  previewRotation.value = 0
+}
+
+const openImage = image => {
+  selectedImage.value = image
+  resetPreview()
+}
+
+const changeZoom = amount => {
+  previewZoom.value = Math.max(0.4, Math.min(3, previewZoom.value + amount))
+}
+
+const onPreviewWheel = event => changeZoom(event.deltaY > 0 ? -0.1 : 0.1)
+
 const playerCode = `<FluentMediaPlayer 
-  src="/loop.mp4"
-  poster="/images/Cyrene01.webp"
+  :src="asset('loop.mp4')"
+  :poster="asset('images/Cyrene01.webp')"
 />`
 
 const audioCode = `<FluentMediaPlayer 
-  src="/trimmed_NewPage.mp3"
+  :src="asset('trimmed_NewPage.mp3')"
+  :poster="asset('images/avatar.webp')"
+  type="audio"
+  title="New Page"
+  artist="Cyrene2008"
 />`
 
 const galleryCode = `<FluentImageViewer 
-  src="/images/Cyrene01.webp" 
+  :src="asset('images/Cyrene01.webp')"
   alt="图片"
   caption="描述"
   clickable
@@ -112,7 +162,7 @@ const galleryCode = `<FluentImageViewer
 
 const avatarCode = `<FluentPersonPicture 
   :size="64" 
-  src="/images/avatar.webp" 
+  :src="asset('images/avatar.webp')"
   display-name="Cyrene2008" 
 />`
 </script>
@@ -140,12 +190,14 @@ const avatarCode = `<FluentPersonPicture
   display: flex;
   flex-direction: column;
   gap: 16px;
+  width: 100%;
 }
 
 .audio-container {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  width: 100%;
 }
 
 .demo-player {
@@ -155,7 +207,14 @@ const avatarCode = `<FluentPersonPicture
 
 .demo-audio {
   width: 100%;
-  max-width: 400px;
+  max-width: 640px;
+}
+
+.gallery-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
 }
 
 .image-gallery {
@@ -166,7 +225,76 @@ const avatarCode = `<FluentPersonPicture
 }
 
 .gallery-item {
-  aspect-ratio: 16/9;
+  min-width: 0;
+  content-visibility: auto;
+  contain-intrinsic-size: 240px 220px;
+}
+
+.image-preview {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 32px;
+  background: rgba(30, 12, 24, 0.82);
+}
+
+.image-preview__toolbar {
+  position: absolute;
+  top: 22px;
+  left: 50%;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px;
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 8px;
+  background: rgba(35, 24, 33, .9);
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(0,0,0,.3);
+  transform: translateX(-50%);
+}
+
+.image-preview__toolbar button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+}
+
+.image-preview__toolbar button:hover { background: rgba(255,255,255,.14); }
+.image-preview__toolbar > span:not(.image-preview__divider) { min-width: 46px; font-size: 13px; text-align: center; }
+.image-preview__divider { width: 1px; height: 24px; margin: 0 3px; background: rgba(255,255,255,.18); }
+
+.image-preview__viewport {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: calc(100vh - 150px);
+  overflow: hidden;
+}
+
+.image-preview__image {
+  max-width: min(90vw, 1000px);
+  max-height: calc(100vh - 180px);
+  object-fit: contain;
+  transition: transform var(--duration-normal) var(--ease-standard);
+}
+
+.image-preview p {
+  color: #fff;
 }
 
 .avatar-demo {
