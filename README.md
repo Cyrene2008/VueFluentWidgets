@@ -2,6 +2,8 @@
 
 适用于 Vue 3 的 Fluent Design 组件库。
 
+[在线Demo演示](https://fluent.cyrene.hk)
+
 ## 使用
 
 ```js
