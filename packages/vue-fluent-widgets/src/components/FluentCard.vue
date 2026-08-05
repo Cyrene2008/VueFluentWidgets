@@ -1,12 +1,13 @@
 <template>
-  <div :class="['fluent-card', { hoverable, padding: true }]" @click="$emit('click', $event)">
+  <div :class="['fluent-card', `material-${material}`, { hoverable, padding: true }]" @click="$emit('click', $event)">
     <slot />
   </div>
 </template>
 
 <script setup>
 defineProps({
-  hoverable: { type: Boolean, default: false }
+  hoverable: { type: Boolean, default: false },
+  material: { type: String, default: 'acrylic' }
 })
 
 defineEmits(['click'])
@@ -21,6 +22,25 @@ defineEmits(['click'])
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-4);
   transition: all var(--duration-normal) var(--ease-standard);
+}
+
+.fluent-card.material-solid {
+  background: var(--bg-card-solid);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.fluent-card.material-acrylic {
+  background: var(--bg-acrylic);
+  backdrop-filter: blur(24px) saturate(140%);
+  -webkit-backdrop-filter: blur(24px) saturate(140%);
+}
+
+.fluent-card.material-mica,
+.fluent-card.material-mica-alt {
+  background: var(--bg-mica);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 .fluent-card.padding {

@@ -53,7 +53,7 @@
       <template #example>
         <div class="glass-variants">
           <div class="glass-variant-item">
-            <img src="/images/Cyrene01.webp" alt="示例图片" class="glass-bg-image" />
+            <img :src="asset('images/Cyrene01.webp')" alt="示例图片" class="glass-bg-image" />
             <FluentLiquidGlass variant="light" class="glass-overlay">
               <h3>Light</h3>
               <p>浅色液态玻璃</p>
@@ -61,7 +61,7 @@
           </div>
           
           <div class="glass-variant-item">
-            <img src="/images/Cyrene02.webp" alt="示例图片" class="glass-bg-image" />
+            <img :src="asset('images/Cyrene02.webp')" alt="示例图片" class="glass-bg-image" />
             <FluentLiquidGlass variant="dark" class="glass-overlay">
               <h3>Dark</h3>
               <p>深色液态玻璃</p>
@@ -69,14 +69,13 @@
           </div>
           
           <div class="glass-variant-item">
-            <img src="/images/Cyrene03.webp" alt="示例图片" class="glass-bg-image" />
+            <img :src="asset('images/Cyrene03.webp')" alt="示例图片" class="glass-bg-image" />
             <FluentLiquidGlass variant="colored" class="glass-overlay">
               <h3>Colored</h3>
               <p>彩色液态玻璃</p>
             </FluentLiquidGlass>
           </div>
         </div>
-        <FluentInfoBar severity="info" title="版权声明" description="以上图片仅供非商业用途展示使用，版权归米哈游所有" />
       </template>
     </FluentControlExample>
 
@@ -138,7 +137,6 @@ import { ref } from 'vue'
 import { 
   FluentLiquidGlass, 
   FluentCard, 
-  FluentInfoBar, 
   FluentSettingsCard, 
   FluentToggle, 
   FluentControlExample 
@@ -146,6 +144,7 @@ import {
 
 const darkMode = ref(false)
 const notifications = ref(true)
+const asset = path => `${import.meta.env.BASE_URL}${path}`
 
 const comparisonCode = `<FluentCard material="solid">Solid</FluentCard>
 <FluentCard material="acrylic">Acrylic</FluentCard>
@@ -204,6 +203,13 @@ const usageCode = `// 基础用法
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 16px;
+  width: 100%;
+  padding: 28px;
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(circle at 16% 20%, rgba(234, 94, 193, .2), transparent 30%),
+    radial-gradient(circle at 84% 76%, rgba(76, 194, 255, .2), transparent 32%),
+    linear-gradient(135deg, #f6d9eb, #dcefff);
 }
 
 .material-card {

@@ -1,14 +1,14 @@
 @font-face {
-  font-family: 'HarmonyOS';
-  src: url('./fonts/HarmonyOS_Sans_SC_Regular.woff2') format('woff2');
-  font-weight: 400;
+  font-family: 'MiSans';
+  src: url('./fonts/MiSans-Regular.woff2') format('woff2');
+  font-weight: 400 600;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'HarmonyOS';
-  src: url('./fonts/HarmonyOS_Sans_SC_Regular.woff2') format('woff2');
+  font-family: 'MiSans';
+  src: url('./fonts/MiSans-Bold.woff2') format('woff2');
   font-weight: 700;
   font-style: normal;
   font-display: swap;

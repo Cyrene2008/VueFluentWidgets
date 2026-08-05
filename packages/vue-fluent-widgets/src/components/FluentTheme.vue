@@ -39,8 +39,7 @@ const themeStyles = computed(() => {
   const styles = {}
   
   if (props.accentColor) {
-    styles['--accent'] = props.accentColor
-    styles['--accent-dark'] = props.accentColor
+    styles['--fluent-accent'] = props.accentColor === 'system' ? 'AccentColor' : props.accentColor
   }
   
   // 材质相关变量
@@ -82,6 +81,7 @@ if (props.theme === 'system') {
 <style scoped>
 .fluent-theme {
   min-height: 100%;
+  background: var(--bg-material, transparent);
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
@@ -96,12 +96,14 @@ if (props.theme === 'system') {
 
 /* 材质效果类 */
 .material-acrylic {
+  background: var(--bg-material);
   backdrop-filter: blur(var(--material-blur, 30px));
   -webkit-backdrop-filter: blur(var(--material-blur, 30px));
 }
 
 .material-mica,
 .material-mica-alt {
+  background: var(--bg-material);
   /* Mica 使用桌面壁纸颜色，这里用渐变模拟 */
   background-attachment: fixed;
 }

@@ -9,18 +9,19 @@
 }
 
 html, body {
-  height: 100%;
-  overflow: hidden;
+  min-height: 100%;
+  overflow-x: hidden;
   -webkit-user-select: none;
   user-select: none;
   -webkit-app-region: no-drag;
 }
 
 body {
-  font-family: 'HarmonyOS', 'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif;
+  font-family: var(--font-ui);
   background: var(--bg-base);
   color: var(--text-primary);
   line-height: 1.5;
+  font-size: 15px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
