@@ -40,5 +40,5 @@
     "vue": "^3.5.17"
   },
   "keywords": ["vue", "fluent", "design-system", "winui3", "components"],
-  "license": "LGPL-2.1-only"
+  "license": "MIT"
 }

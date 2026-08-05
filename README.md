@@ -61,4 +61,4 @@ createApp(App).use(VueFluentWidgets).mount('#app')
 
 ## 许可证
 
-[LGPL-2.1-only](./LICENSE)
+[MIT License](./LICENSE)

@@ -12,7 +12,7 @@
     "test": "echo \"No tests specified\" && exit 0"
   },
   "keywords": ["vue", "fluent", "design-system", "winui3", "components"],
-  "license": "LGPL-2.1-only",
+  "license": "MIT",
   "engines": {
     "node": ">=18.0.0"
   },
