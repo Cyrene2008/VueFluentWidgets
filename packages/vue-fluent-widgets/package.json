@@ -11,7 +11,7 @@
       "import": "./dist/vue-fluent-widgets.js",
       "require": "./dist/vue-fluent-widgets.umd.cjs"
     },
-    "./style.css": "./dist/style.css"
+    "./style.css": "./dist/vue-fluent-widgets.css"
   },
   "files": [
     "dist"
