@@ -81,6 +81,8 @@ const horizontalCode = `<FluentScrollViewer horizontal style="height: 100px;">
 .demo-column {
   display: flex;
   flex-direction: column;
+  width: 100%;
+  min-width: 0;
   gap: 16px;
 }
 

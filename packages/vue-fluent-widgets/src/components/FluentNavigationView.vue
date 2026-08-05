@@ -18,10 +18,25 @@
             <div v-if="item.type === 'separator'" class="menu-separator"></div>
             <div v-else-if="item.type === 'header'" class="menu-header">{{ item.label }}</div>
             <div v-else class="menu-item-wrapper">
+              <button
+                v-if="item.children?.length"
+                type="button"
+                class="menu-item"
+                :class="{ 'is-selected': selectedItem === item.id, 'is-disabled': item.disabled }"
+                :aria-expanded="expandedItems.includes(item.id)"
+                :disabled="item.disabled"
+                @click="toggleItemExpand(item.id)"
+              >
+                <FluentIcon v-if="item.icon" :icon="item.icon" :width="20" />
+                <span class="menu-item-label">{{ item.label }}</span>
+                <FluentIcon icon="chevron-down-20-regular" :width="16" class="menu-chevron" :class="{ rotated: expandedItems.includes(item.id) }" />
+              </button>
               <router-link
+                v-else
                 :to="item.to"
                 class="menu-item"
                 :class="{ 'is-selected': selectedItem === item.id, 'is-disabled': item.disabled }"
+                :aria-disabled="item.disabled || undefined"
                 @click="selectItem(item)"
               >
                 <FluentIcon v-if="item.icon" :icon="item.icon" :width="20" />
@@ -35,6 +50,7 @@
                   :to="child.to"
                   class="menu-item menu-child-item"
                   :class="{ 'is-selected': selectedItem === child.id, 'is-disabled': child.disabled }"
+                  :aria-disabled="child.disabled || undefined"
                   @click="selectItem(child)"
                 >
                   <FluentIcon v-if="child.icon" :icon="child.icon" :width="20" />
@@ -58,7 +74,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import FluentIcon from './FluentIcon.vue'
 import FluentInput from './FluentInput.vue'
@@ -80,16 +96,6 @@ const isCompact = ref(props.compactMode)
 const selectedItem = ref(props.defaultSelectedItem)
 const expandedItems = ref([])
 
-watch(() => route.path, (path) => {
-  const item = findItemByPath(path)
-  if (item) {
-    selectedItem.value = item.id
-    if (item.parent) {
-      expandedItems.value = [...expandedItems.value, item.parent]
-    }
-  }
-}, { immediate: true })
-
 const findItemByPath = (path) => {
   for (const item of props.menuItems) {
     if (item.to === path) return item
@@ -102,13 +108,25 @@ const findItemByPath = (path) => {
   return null
 }
 
+watch(() => route.path, (path) => {
+  const item = findItemByPath(path)
+  if (item) {
+    selectedItem.value = item.id
+    if (item.parent) {
+      expandedItems.value = [...expandedItems.value, item.parent]
+    }
+  }
+}, { immediate: true })
+
 const selectItem = (item) => {
+  if (item.disabled) return
   selectedItem.value = item.id
   emit('item-selected', item)
 }
 
 const togglePane = () => {
   isExpanded.value = !isExpanded.value
+  isCompact.value = !isExpanded.value
   emit('pane-toggle', isExpanded.value)
 }
 
@@ -117,7 +135,7 @@ const toggleItemExpand = (itemId) => {
   if (index > -1) {
     expandedItems.value.splice(index, 1)
   } else {
-    expandedItems.value.push(itemId)
+    expandedItems.value = [...expandedItems.value, itemId]
   }
 }
 </script>
@@ -126,10 +144,12 @@ const toggleItemExpand = (itemId) => {
 .fluent-navigation-view {
   display: flex;
   height: 100%;
-  min-height: 100vh;
+  min-width: 0;
+  min-height: 0;
 }
 
 .navigation-view-pane {
+  flex: 0 0 280px;
   width: 280px;
   background: var(--bg-card);
   border-right: 1px solid var(--border-strong);
@@ -139,6 +159,7 @@ const toggleItemExpand = (itemId) => {
 }
 
 .fluent-navigation-view.is-compact .navigation-view-pane {
+  flex-basis: 48px;
   width: 48px;
 }
 
@@ -186,6 +207,7 @@ const toggleItemExpand = (itemId) => {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  min-height: 0;
 }
 
 .pane-search {
@@ -220,12 +242,18 @@ const toggleItemExpand = (itemId) => {
 }
 
 .menu-item {
+  position: relative;
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 8px 16px;
-  margin: 2px 8px;
-  border-radius: var(--radius-md);
+  height: 36px;
+  padding: 0 12px;
+  margin: 2px 4px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  font: inherit;
   text-decoration: none;
   color: var(--text-primary);
   font-size: 14px;
@@ -237,8 +265,19 @@ const toggleItemExpand = (itemId) => {
 }
 
 .menu-item.is-selected {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.menu-item.is-selected::before {
+  position: absolute;
+  left: -4px;
+  top: 10px;
+  width: 3px;
+  height: 16px;
+  border-radius: 2px;
   background: var(--accent);
-  color: var(--text-on-accent);
+  content: '';
 }
 
 .menu-item.is-disabled {
@@ -248,6 +287,16 @@ const toggleItemExpand = (itemId) => {
 
 .menu-child-item {
   padding-left: 52px;
+}
+
+.menu-chevron {
+  flex: 0 0 auto;
+  margin-left: auto;
+  transition: transform var(--duration-fast) ease;
+}
+
+.menu-chevron.rotated {
+  transform: rotate(180deg);
 }
 
 .menu-item-label {
@@ -278,6 +327,28 @@ const toggleItemExpand = (itemId) => {
 
 .navigation-view-content {
   flex: 1;
+  min-width: 0;
+  min-height: 0;
   overflow: auto;
+}
+
+.fluent-navigation-view.is-compact .pane-header {
+  padding: 6px;
+}
+
+.fluent-navigation-view.is-compact .pane-title,
+.fluent-navigation-view.is-compact .menu-item-label,
+.fluent-navigation-view.is-compact .menu-header,
+.fluent-navigation-view.is-compact .menu-chevron,
+.fluent-navigation-view.is-compact .menu-item-badge {
+  display: none;
+}
+
+.fluent-navigation-view.is-compact .menu-item {
+  width: 40px;
+  min-width: 40px;
+  max-width: 40px;
+  padding: 0 10px;
+  overflow: hidden;
 }
 </style>

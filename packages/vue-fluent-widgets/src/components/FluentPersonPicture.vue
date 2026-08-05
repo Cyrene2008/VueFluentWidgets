@@ -4,14 +4,14 @@
     :style="rootStyle"
     :aria-label="displayName || initials || undefined"
   >
-    <img v-if="src" :src="src" :alt="displayName" class="person-picture-image" />
+    <img v-if="src && !imageFailed" :src="src" :alt="displayName" class="person-picture-image" @error="handleImageError" />
     <span v-else-if="resolvedInitials" class="person-picture-initials">{{ resolvedInitials }}</span>
     <FluentIcon v-else icon="person-20-regular" :width="iconSize" class="person-picture-icon" />
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import FluentIcon from './FluentIcon.vue'
 
 const props = defineProps({
@@ -21,6 +21,8 @@ const props = defineProps({
   size: { type: Number, default: 32 },
   shape: { type: String, default: 'circle' }
 })
+
+const imageFailed = ref(false)
 
 const resolvedInitials = computed(() => {
   if (props.initials) return props.initials.slice(0, 2).toUpperCase()
@@ -42,6 +44,10 @@ const rootStyle = computed(() => ({
   fontSize: `${Math.max(12, props.size * 0.4)}px`,
   borderRadius: props.shape === 'square' ? '4px' : '50%'
 }))
+
+const handleImageError = () => {
+  imageFailed.value = true
+}
 </script>
 
 <style scoped>

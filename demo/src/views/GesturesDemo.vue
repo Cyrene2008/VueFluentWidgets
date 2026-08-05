@@ -165,7 +165,7 @@ const endLongPress = () => {
 
 const dragCode = `<div 
   class="draggable"
-  :style="{ transform: `translate(${dragX}px, ${dragY}px)` }"
+  :style="{ transform: \`translate(\${dragX}px, \${dragY}px)\` }"
   @mousedown="startDrag"
 >
   拖拽我
@@ -251,7 +251,7 @@ const hoverCode = `<div class="hover-box">
 
 .hover-content {
   position: absolute;
-  bottom: 100%;
+  top: calc(100% + 8px);
   left: 50%;
   transform: translateX(-50%);
   padding: 8px 12px;
@@ -263,7 +263,7 @@ const hoverCode = `<div class="hover-box">
   opacity: 0;
   visibility: hidden;
   transition: all 0.2s ease;
-  margin-bottom: 8px;
+  z-index: 2;
 }
 
 .hover-box:hover .hover-content {

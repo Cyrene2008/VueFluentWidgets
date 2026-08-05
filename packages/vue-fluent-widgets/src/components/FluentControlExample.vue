@@ -73,16 +73,20 @@ const copyCode = () => {
   background: var(--bg-card);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-2);
-  overflow: hidden;
+  overflow: visible;
 }
 
 .example-container {
   display: flex;
+  min-width: 0;
+  overflow: visible;
   min-height: 100px;
 }
 
 .example-display {
   flex: 1;
+  min-width: 0;
+  overflow: visible;
   padding: 24px;
   display: flex;
   align-items: center;
@@ -90,8 +94,26 @@ const copyCode = () => {
   background: var(--bg-card-solid);
 }
 
+.example-display > :deep(*) {
+  max-width: 100%;
+}
+
+@media (max-width: 720px) {
+  .example-container {
+    flex-direction: column;
+  }
+
+  .example-options {
+    width: 100%;
+    min-width: 0;
+    border-top: 1px solid var(--border-strong);
+    border-left: 0;
+  }
+}
+
 .example-options {
-  width: 250px;
+  flex: 0 1 250px;
+  min-width: 180px;
   padding: 16px;
   border-left: 1px solid var(--border-strong);
   background: var(--bg-card);

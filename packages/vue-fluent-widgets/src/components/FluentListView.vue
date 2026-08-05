@@ -164,6 +164,8 @@ const onCheckboxChange = (checked, item) => {
 
 <style scoped>
 .fluent-list-view {
+  display: flex;
+  flex-direction: column;
   width: 100%;
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-md);
@@ -185,6 +187,8 @@ const onCheckboxChange = (checked, item) => {
 .list-view-items {
   display: flex;
   flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .group-header {

@@ -32,11 +32,15 @@ const onScroll = (event) => {
 <style scoped>
 .fluent-scroll-viewer {
   position: relative;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
   overflow: hidden;
 }
 
 .scroll-viewer-viewport {
   width: 100%;
+  min-width: 0;
   height: 100%;
   overflow-x: hidden;
   overflow-y: auto;
@@ -45,6 +49,11 @@ const onScroll = (event) => {
 .fluent-scroll-viewer.is-horizontal .scroll-viewer-viewport {
   overflow-x: auto;
   overflow-y: hidden;
+}
+
+.fluent-scroll-viewer.is-horizontal .scroll-viewer-viewport > :deep(*) {
+  width: max-content;
+  min-width: max-content;
 }
 
 /* 自定义滚动条样式 */

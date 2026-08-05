@@ -4,14 +4,14 @@
     ref="containerRef"
     @scroll="onScroll"
   >
-    <div class="scroll-content" :style="contentStyle">
+    <div class="scroll-content">
       <slot></slot>
     </div>
     
     <button 
       v-if="showLeftButton" 
       class="scroll-button left-button"
-      @click="scrollLeft"
+       @click="scrollLeftAction"
     >
       <FluentIcon icon="chevron-left-20-regular" :width="16" />
     </button>
@@ -19,7 +19,7 @@
     <button 
       v-if="showRightButton" 
       class="scroll-button right-button"
-      @click="scrollRight"
+       @click="scrollRightAction"
     >
       <FluentIcon icon="chevron-right-20-regular" :width="16" />
     </button>
@@ -27,7 +27,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import FluentIcon from './FluentIcon.vue'
 
 const props = defineProps({
@@ -35,25 +35,19 @@ const props = defineProps({
 })
 
 const containerRef = ref(null)
-const scrollLeft = ref(0)
 const showLeftButton = ref(false)
 const showRightButton = ref(false)
-
-const contentStyle = computed(() => ({
-  transform: `translateX(-${scrollLeft.value}px)`
-}))
 
 const updateButtons = () => {
   if (!containerRef.value) return
   const { scrollLeft: sl, scrollWidth, clientWidth } = containerRef.value
   showLeftButton.value = sl > 0
-  showRightButton.value = sl < scrollWidth - clientWidth
+  showRightButton.value = scrollWidth > clientWidth + 1 && sl < scrollWidth - clientWidth - 1
 }
 
 const onScroll = () => {
   if (!containerRef.value) return
-  scrollLeft.value = containerRef.value.scrollLeft
-  updateButtons()
+   updateButtons()
 }
 
 const scrollLeftAction = () => {
@@ -79,6 +73,7 @@ onUnmounted(() => {
 <style scoped>
 .fluent-horizontal-scroll-container {
   position: relative;
+  min-width: 0;
   overflow-x: auto;
   overflow-y: hidden;
   scrollbar-width: none;
@@ -91,8 +86,13 @@ onUnmounted(() => {
 
 .scroll-content {
   display: flex;
+  width: max-content;
+  min-width: max-content;
   gap: 8px;
-  transition: transform 0.3s ease;
+}
+
+.scroll-content > :deep(*) {
+  flex: 0 0 auto;
 }
 
 .scroll-button {

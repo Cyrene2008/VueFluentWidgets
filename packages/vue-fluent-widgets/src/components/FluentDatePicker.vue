@@ -1,8 +1,9 @@
 <template>
   <div class="fluent-date-picker" :class="{ 'is-disabled': disabled }">
     <div v-if="label" class="date-picker-label">{{ label }}</div>
-    <div class="date-picker-container">
+    <div class="date-picker-container" @click="openPicker">
       <input
+        ref="inputRef"
         type="date"
         class="date-picker-input"
         :value="modelValue"
@@ -13,13 +14,16 @@
         @input="onInput"
         @change="onChange"
       />
-      <FluentIcon icon="calendar-16-regular" :width="16" class="date-picker-icon" />
+      <button type="button" class="date-picker-button" :disabled="disabled" aria-label="打开日期选择器" @click.stop="openPicker">
+        <FluentIcon icon="calendar-16-regular" :width="16" />
+      </button>
     </div>
     <div v-if="error" class="date-picker-error">{{ error }}</div>
   </div>
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import FluentIcon from './FluentIcon.vue'
 
 const props = defineProps({
@@ -33,6 +37,16 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['update:modelValue', 'change'])
+const inputRef = ref(null)
+
+const openPicker = () => {
+  if (props.disabled || !inputRef.value) return
+  inputRef.value.focus()
+  try {
+    if (typeof inputRef.value.showPicker === 'function') inputRef.value.showPicker()
+    else inputRef.value.click()
+  } catch {}
+}
 
 const onInput = (event) => {
   emit('update:modelValue', event.target.value)
@@ -99,12 +113,22 @@ const onChange = (event) => {
   cursor: pointer;
 }
 
-.date-picker-icon {
+.date-picker-button {
   position: absolute;
   right: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
   color: var(--text-secondary);
-  pointer-events: none;
+  cursor: pointer;
 }
+
+.date-picker-button:hover { background: var(--bg-hover); color: var(--accent); }
 
 .date-picker-error {
   font-size: 12px;

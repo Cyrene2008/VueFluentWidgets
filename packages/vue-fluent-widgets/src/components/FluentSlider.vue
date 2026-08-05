@@ -41,12 +41,12 @@ const emit = defineEmits(['update:modelValue', 'change'])
 
 const percentage = computed(() => {
   if (props.max === props.min) return 0
-  return ((props.modelValue - props.min) / (props.max - props.min)) * 100
+  return Math.max(0, Math.min(100, ((props.modelValue - props.min) / (props.max - props.min)) * 100))
 })
 
 const fillStyle = computed(() => {
   if (props.vertical) {
-    return { height: `${percentage.value}%` }
+    return { height: `${percentage.value}%`, bottom: 0 }
   }
   return { width: `${percentage.value}%` }
 })
@@ -80,6 +80,10 @@ const onChange = (event) => {
 .fluent-slider.is-disabled {
   opacity: 0.5;
   pointer-events: none;
+}
+
+.fluent-slider.is-vertical {
+  min-width: 32px;
 }
 
 .slider-label {
@@ -127,8 +131,11 @@ const onChange = (event) => {
 }
 
 .fluent-slider.is-vertical .slider-track {
+  left: 50%;
+  top: 0;
   width: 4px;
   height: 100%;
+  transform: translateX(-50%);
 }
 
 .slider-fill {
@@ -139,6 +146,7 @@ const onChange = (event) => {
 }
 
 .fluent-slider.is-vertical .slider-fill {
+  position: absolute;
   width: 100%;
   height: auto;
   transition: height 0.1s ease;

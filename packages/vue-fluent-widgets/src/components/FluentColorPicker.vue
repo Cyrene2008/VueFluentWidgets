@@ -30,7 +30,7 @@
               <span class="slider-label">色相</span>
               <div class="hue-slider" @pointerdown="onHueDown">
                 <div class="hue-track">
-                  <div class="slider-thumb" :style="{ left: `${hue}%` }"></div>
+                  <div class="slider-thumb" :style="{ left: huePercent }"></div>
                 </div>
               </div>
             </div>
@@ -81,7 +81,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
 
 const props = defineProps({
   modelValue: { type: String, default: '#0078d4' },
@@ -99,6 +99,8 @@ const isOpen = ref(false)
 const hue = ref(0)
 const alpha = ref(100)
 const isDragging = ref(false)
+const dragMode = ref('')
+const dragElement = ref(null)
 
 const presetColors = [
   '#ff0000', '#ff4500', '#ffa500', '#ffd700', '#ffff00',
@@ -122,11 +124,14 @@ const alphaGradient = computed(() => {
 })
 
 const spectrumThumbStyle = computed(() => {
+  const hsv = rgbToHsv(rgb.value.r, rgb.value.g, rgb.value.b)
   return {
-    left: `${(rgb.value.r / 255) * 100}%`,
-    top: `${(1 - rgb.value.g / 255) * 100}%`
+    left: `${hsv.s * 100}%`,
+    top: `${(1 - hsv.v) * 100}%`
   }
 })
+
+const huePercent = computed(() => `${(hue.value / 360) * 100}%`)
 
 const hexToRgb = (hex) => {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
@@ -144,6 +149,53 @@ const rgbToHex = (r, g, b) => {
   }).join('')
 }
 
+const hsvToRgb = (h, s, v) => {
+  const c = v * s
+  const x = c * (1 - Math.abs((h / 60) % 2 - 1))
+  const m = v - c
+  const [r, g, b] = h < 60 ? [c, x, 0] : h < 120 ? [x, c, 0] : h < 180 ? [0, c, x] : h < 240 ? [0, x, c] : h < 300 ? [x, 0, c] : [c, 0, x]
+  return { r: (r + m) * 255, g: (g + m) * 255, b: (b + m) * 255 }
+}
+
+const rgbToHsv = (r, g, b) => {
+  r /= 255
+  g /= 255
+  b /= 255
+  const max = Math.max(r, g, b)
+  const min = Math.min(r, g, b)
+  const delta = max - min
+  let h = 0
+  if (delta) {
+    if (max === r) h = 60 * (((g - b) / delta) % 6)
+    else if (max === g) h = 60 * ((b - r) / delta + 2)
+    else h = 60 * ((r - g) / delta + 4)
+  }
+  if (h < 0) h += 360
+  return { h, s: max ? delta / max : 0, v: max }
+}
+
+const drawSpectrum = () => {
+  const canvas = spectrumRef.value
+  const context = canvas?.getContext('2d')
+  if (!canvas || !context) return
+  const hueColor = hsvToRgb(hue.value, 1, 1)
+  const horizontal = context.createLinearGradient(0, 0, canvas.width, 0)
+  horizontal.addColorStop(0, '#fff')
+  horizontal.addColorStop(1, `rgb(${hueColor.r}, ${hueColor.g}, ${hueColor.b})`)
+  context.fillStyle = horizontal
+  context.fillRect(0, 0, canvas.width, canvas.height)
+  const whiteToTransparent = context.createLinearGradient(0, 0, 0, canvas.height)
+  whiteToTransparent.addColorStop(0, 'rgba(255,255,255,0)')
+  whiteToTransparent.addColorStop(1, 'rgba(255,255,255,1)')
+  context.fillStyle = whiteToTransparent
+  context.fillRect(0, 0, canvas.width, canvas.height)
+  const black = context.createLinearGradient(0, 0, 0, canvas.height)
+  black.addColorStop(0, 'rgba(0,0,0,0)')
+  black.addColorStop(1, 'rgba(0,0,0,1)')
+  context.fillStyle = black
+  context.fillRect(0, 0, canvas.width, canvas.height)
+}
+
 const togglePicker = () => {
   if (props.disabled) return
   isOpen.value = !isOpen.value
@@ -158,10 +210,8 @@ const onInputChange = (event) => {
 }
 
 const onSpectrumDown = (event) => {
-  isDragging.value = true
+  startDrag('spectrum', event)
   updateSpectrumColor(event)
-  document.addEventListener('pointermove', onSpectrumMove)
-  document.addEventListener('pointerup', onSpectrumUp)
 }
 
 const onSpectrumMove = (event) => {
@@ -172,8 +222,8 @@ const onSpectrumMove = (event) => {
 
 const onSpectrumUp = () => {
   isDragging.value = false
-  document.removeEventListener('pointermove', onSpectrumMove)
-  document.removeEventListener('pointerup', onSpectrumUp)
+  dragMode.value = ''
+  dragElement.value = null
 }
 
 const updateSpectrumColor = (event) => {
@@ -184,25 +234,46 @@ const updateSpectrumColor = (event) => {
   const x = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width))
   const y = Math.max(0, Math.min(1, (event.clientY - rect.top) / rect.height))
   
-  const r = Math.round(x * 255)
-  const g = Math.round((1 - y) * 255)
-  const b = Math.round(hue.value * 2.55)
-  
-  const hex = rgbToHex(r, g, b)
+  const color = hsvToRgb(hue.value, x, 1 - y)
+  const hex = rgbToHex(color.r, color.g, color.b)
   emit('update:modelValue', hex)
   emit('change', hex)
 }
 
 const onHueDown = (event) => {
-  const rect = event.currentTarget.getBoundingClientRect()
-  const x = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width))
-  hue.value = Math.round(x * 100)
+  startDrag('hue', event)
+  updateHue(event)
 }
 
 const onAlphaDown = (event) => {
-  const rect = event.currentTarget.getBoundingClientRect()
-  const x = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width))
-  alpha.value = Math.round(x * 100)
+  startDrag('alpha', event)
+  updateAlpha(event)
+}
+
+const startDrag = (mode, event) => {
+  isDragging.value = true
+  dragMode.value = mode
+  dragElement.value = event.currentTarget
+}
+
+const updateHue = (event) => {
+  const rect = dragElement.value?.getBoundingClientRect()
+  if (!rect) return
+  hue.value = Math.round(Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width)) * 360)
+  drawSpectrum()
+}
+
+const updateAlpha = (event) => {
+  const rect = dragElement.value?.getBoundingClientRect()
+  if (!rect) return
+  alpha.value = Math.round(Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width)) * 100)
+}
+
+const onDragMove = (event) => {
+  if (!isDragging.value) return
+  if (dragMode.value === 'spectrum') updateSpectrumColor(event)
+  else if (dragMode.value === 'hue') updateHue(event)
+  else if (dragMode.value === 'alpha') updateAlpha(event)
 }
 
 const onHexChange = (event) => {
@@ -236,18 +307,31 @@ const onClickOutside = (event) => {
   }
 }
 
+watch(isOpen, async open => {
+  if (!open) return
+  await nextTick()
+  drawSpectrum()
+})
+
+watch(() => props.modelValue, value => {
+  const current = hexToRgb(value)
+  const hsv = rgbToHsv(current.r, current.g, current.b)
+  if (!isDragging.value) hue.value = hsv.h
+})
+
 onMounted(() => {
   document.addEventListener('click', onClickOutside)
-  // 初始化色相值
-  const rgbValue = hexToRgb(props.modelValue)
-  const max = Math.max(rgbValue.r, rgbValue.g, rgbValue.b)
-  if (max === rgbValue.r) hue.value = 0
-  else if (max === rgbValue.g) hue.value = 120
-  else hue.value = 240
+  const current = hexToRgb(props.modelValue)
+  hue.value = rgbToHsv(current.r, current.g, current.b).h
+  drawSpectrum()
+  document.addEventListener('pointermove', onDragMove)
+  document.addEventListener('pointerup', onSpectrumUp)
 })
 
 onUnmounted(() => {
   document.removeEventListener('click', onClickOutside)
+  document.removeEventListener('pointermove', onDragMove)
+  document.removeEventListener('pointerup', onSpectrumUp)
 })
 </script>
 

@@ -78,10 +78,6 @@ const itemIndexes = computed(() => Array.from({ length: maxRating.value }, (_, i
 const actualValue = computed(() => internalValue.value)
 const initialValue = computed(() => Math.max(1, Math.min(maxRating.value, Math.trunc(props.initialValue))))
 
-watch(() => props.modelValue, (val) => {
-  internalValue.value = coerceValue(val)
-}, { immediate: true })
-
 const coerceValue = (value) => {
   const num = Number(value)
   if (!Number.isFinite(num) || num < 0) return -1
@@ -89,6 +85,10 @@ const coerceValue = (value) => {
   if (num > maxRating.value) return maxRating.value
   return num
 }
+
+watch(() => props.modelValue, (val) => {
+  internalValue.value = coerceValue(val)
+}, { immediate: true })
 
 const displayedValue = computed(() => {
   if (isPointerOver.value && !props.readonly && !props.disabled) {

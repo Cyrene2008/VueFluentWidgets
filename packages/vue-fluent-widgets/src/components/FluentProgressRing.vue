@@ -6,6 +6,7 @@
       'is-error': error, 
       'is-paused': paused 
     }"
+    :style="ringStyle"
     role="progressbar"
     :aria-valuenow="indeterminate ? undefined : percentage"
     :aria-valuemin="indeterminate ? undefined : 0"
@@ -46,7 +47,8 @@ const props = defineProps({
   max: { type: Number, default: 100 },
   indeterminate: { type: Boolean, default: true },
   error: { type: Boolean, default: false },
-  paused: { type: Boolean, default: false }
+  paused: { type: Boolean, default: false },
+  size: { type: [Number, String], default: 32 }
 })
 
 const percentage = computed(() => {
@@ -62,6 +64,11 @@ const strokeDashoffset = computed(() => {
 const fillStyle = computed(() => ({
   strokeDasharray: `${circumference}`,
   strokeDashoffset: `${strokeDashoffset.value}`
+}))
+
+const ringStyle = computed(() => ({
+  width: typeof props.size === 'number' ? `${props.size}px` : props.size,
+  height: typeof props.size === 'number' ? `${props.size}px` : props.size
 }))
 </script>
 
@@ -107,8 +114,8 @@ const fillStyle = computed(() => ({
   stroke: var(--accent);
   stroke-width: 6;
   stroke-linecap: round;
-  stroke-dasharray: 80 200;
-  animation: indeterminate 1.5s infinite ease-in-out;
+  stroke-dasharray: 72 192;
+  animation: indeterminate 1s infinite linear;
   transform-origin: center;
 }
 
@@ -122,17 +129,6 @@ const fillStyle = computed(() => ({
 }
 
 @keyframes indeterminate {
-  0% {
-    stroke-dasharray: 1 200;
-    stroke-dashoffset: 0;
-  }
-  50% {
-    stroke-dasharray: 100 200;
-    stroke-dashoffset: -30;
-  }
-  100% {
-    stroke-dasharray: 100 200;
-    stroke-dashoffset: -124;
-  }
+  to { transform: rotate(360deg); }
 }
 </style>

@@ -11,12 +11,13 @@
     >
       <template #example>
         <div class="demo-row">
-          <FluentButton @click="showTip1 = true">显示教学提示</FluentButton>
+          <span ref="tipTarget1"><FluentButton @click="showTip1 = true">显示教学提示</FluentButton></span>
           <FluentTeachingTip 
             v-model="showTip1" 
             title="欢迎使用 Vue Fluent Widgets"
             subtitle="这是一个功能强大的 Fluent 组件库"
             icon="heart-20-regular"
+            :target="tipTarget1"
           >
             <p>这里可以放置任何内容，包括文本、图片或其他组件。</p>
           </FluentTeachingTip>
@@ -30,12 +31,13 @@
     >
       <template #example>
         <div class="demo-row">
-          <FluentButton @click="showTip2 = true">带操作按钮</FluentButton>
+          <span ref="tipTarget2"><FluentButton @click="showTip2 = true">带操作按钮</FluentButton></span>
           <FluentTeachingTip 
             v-model="showTip2" 
             title="新功能介绍"
             subtitle="我们添加了一个强大的新功能"
             icon="star-20-regular"
+            :target="tipTarget2"
           >
             <p>这个功能可以帮助您更高效地完成工作。</p>
             <template #actions>
@@ -53,11 +55,12 @@
     >
       <template #example>
         <div class="demo-row">
-          <FluentButton @click="showTip3 = true">上方显示</FluentButton>
+          <span ref="tipTarget3"><FluentButton @click="showTip3 = true">上方显示</FluentButton></span>
           <FluentTeachingTip 
             v-model="showTip3" 
             title="上方提示"
             placement="top"
+            :target="tipTarget3"
           >
             <p>这个提示显示在按钮上方。</p>
           </FluentTeachingTip>
@@ -74,10 +77,16 @@ import { FluentTeachingTip, FluentButton, FluentControlExample } from 'vue-fluen
 const showTip1 = ref(false)
 const showTip2 = ref(false)
 const showTip3 = ref(false)
+const tipTarget1 = ref(null)
+const tipTarget2 = ref(null)
+const tipTarget3 = ref(null)
 
-const basicCode = `<FluentButton @click="showTip = true">显示教学提示</FluentButton>
-<FluentTeachingTip 
+const basicCode = `<span ref="tipTarget">
+  <FluentButton @click="showTip = true">显示教学提示</FluentButton>
+</span>
+<FluentTeachingTip
   v-model="showTip" 
+  :target="tipTarget"
   title="欢迎使用 Vue Fluent Widgets"
   subtitle="这是一个功能强大的 Fluent 组件库"
   icon="heart-20-regular"
@@ -85,10 +94,15 @@ const basicCode = `<FluentButton @click="showTip = true">显示教学提示</Flu
   <p>这里可以放置任何内容。</p>
 </FluentTeachingTip>
 
-const showTip = ref(false)`
+const showTip = ref(false)
+const tipTarget = ref(null)`
 
-const actionsCode = `<FluentTeachingTip 
+const actionsCode = `<span ref="tipTarget">
+  <FluentButton @click="showTip = true">带操作按钮</FluentButton>
+</span>
+<FluentTeachingTip
   v-model="showTip" 
+  :target="tipTarget"
   title="新功能介绍"
   subtitle="我们添加了一个强大的新功能"
   icon="star-20-regular"
@@ -100,8 +114,12 @@ const actionsCode = `<FluentTeachingTip
   </template>
 </FluentTeachingTip>`
 
-const placementCode = `<FluentTeachingTip 
+const placementCode = `<span ref="tipTarget">
+  <FluentButton @click="showTip = true">上方显示</FluentButton>
+</span>
+<FluentTeachingTip
   v-model="showTip" 
+  :target="tipTarget"
   title="上方提示"
   placement="top"
 >

@@ -39,9 +39,9 @@
     >
       <template #example>
         <div class="demo-row">
-          <FluentRating v-model="rating3" :max="3" />
-          <FluentRating v-model="rating4" :max="5" />
-          <FluentRating v-model="rating5" :max="10" />
+          <FluentRating v-model="rating3" :max-rating="3" />
+          <FluentRating v-model="rating4" :max-rating="5" />
+          <FluentRating v-model="rating5" :max-rating="10" />
         </div>
       </template>
     </FluentControlExample>
@@ -65,7 +65,7 @@
       <template #example>
         <div class="demo-column">
           <FluentRating v-model="rating8" caption="请为我们的服务评分" />
-          <FluentRating v-model="rating9" :max="10" caption="10分制评分" />
+          <FluentRating v-model="rating9" :max-rating="10" caption="10分制评分" />
         </div>
       </template>
     </FluentControlExample>

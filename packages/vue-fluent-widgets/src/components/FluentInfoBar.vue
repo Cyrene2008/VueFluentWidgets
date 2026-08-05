@@ -27,7 +27,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import FluentIcon from './FluentIcon.vue'
 import FluentButton from './FluentButton.vue'
 
@@ -43,6 +43,10 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue', 'close', 'action'])
 
 const isVisible = ref(props.modelValue)
+
+watch(() => props.modelValue, value => {
+  isVisible.value = value
+})
 
 const iconName = computed(() => {
   switch (props.severity) {

@@ -8,10 +8,17 @@
       'is-collapsed': collapsed
     }"
     :aria-hidden="!open"
+    @keydown.esc="goBack"
   >
     <header class="secondary-sidebar-menu__header">
-      <button type="button" class="secondary-sidebar-menu__back" :aria-label="backLabel" @click="goBack">
+      <button v-if="collapsed" type="button" class="secondary-sidebar-menu__back" aria-label="展开 Dock" title="展开 Dock" @click="emit('toggle-collapse')">
+        <FluentIcon icon="line-horizontal-3-20-regular" :width="18" />
+      </button>
+      <button v-if="collapsed" type="button" class="secondary-sidebar-menu__back" aria-label="返回上一个页面" title="返回上一个页面" @click="router.back()">
         <FluentIcon icon="arrow-left-20-regular" :width="18" />
+      </button>
+      <button type="button" class="secondary-sidebar-menu__back" :aria-label="backLabel" @click="goBack">
+        <FluentIcon :icon="collapsed ? 'panel-left-20-regular' : 'arrow-left-20-regular'" :width="18" />
         <span class="secondary-sidebar-menu__back-label">{{ backLabel }}</span>
       </button>
     </header>
@@ -57,7 +64,9 @@
                         <router-link
                           :to="grandchild.to"
                           class="secondary-sidebar-menu__item"
-                          :class="{ active: isItemActive(grandchild) }"
+                          :class="{ active: isItemActive(grandchild), disabled: grandchild.disabled }"
+                          :aria-disabled="grandchild.disabled || undefined"
+                          @click="onItemClick($event, grandchild)"
                         >
                           <FluentIcon v-if="grandchild.icon" :icon="grandchild.icon" :width="18" />
                           <span class="secondary-sidebar-menu__item-label">{{ grandchild.label }}</span>
@@ -68,9 +77,11 @@
                 </div>
                 <router-link
                   v-else
-                  :to="child.to"
-                  class="secondary-sidebar-menu__item"
-                  :class="{ active: isItemActive(child) }"
+                   :to="child.to"
+                   class="secondary-sidebar-menu__item"
+                   :class="{ active: isItemActive(child), disabled: child.disabled }"
+                   :aria-disabled="child.disabled || undefined"
+                   @click="onItemClick($event, child)"
                 >
                   <FluentIcon v-if="child.icon" :icon="child.icon" :width="18" />
                   <span class="secondary-sidebar-menu__item-label">{{ child.label }}</span>
@@ -83,7 +94,9 @@
           v-else
           :to="item.to"
           class="secondary-sidebar-menu__item"
-          :class="{ active: isItemActive(item) }"
+          :class="{ active: isItemActive(item), disabled: item.disabled }"
+          :aria-disabled="item.disabled || undefined"
+          @click="onItemClick($event, item)"
         >
           <FluentIcon v-if="item.icon" :icon="item.icon" :width="18" />
           <span class="secondary-sidebar-menu__item-label">{{ item.label }}</span>
@@ -94,27 +107,32 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import FluentIcon from './FluentIcon.vue'
 
 const props = defineProps({
   open: { type: Boolean, default: false },
   collapsed: { type: Boolean, default: false },
   items: { type: Array, required: true },
-  backLabel: { type: String, default: 'Back' }
+  backLabel: { type: String, default: 'Back' },
+  initialRoute: { type: [String, Object], default: null },
+  navigateOnOpen: { type: Boolean, default: false }
 })
 
-const emit = defineEmits(['back'])
+const emit = defineEmits(['back', 'toggle-collapse'])
 const route = useRoute()
+const router = useRouter()
 const menuRef = ref(null)
 const panelVisible = ref(props.open)
 const expandedGroups = ref(new Set())
 
-const findItemByRoute = (path, items) => {
+const routePath = target => target ? router.resolve(target).path : ''
+
+const findItemByRoute = (path, items = props.items) => {
   for (const item of items) {
     if (item.to) {
-      const itemPath = item.to
+      const itemPath = routePath(item.to)
       if (path === itemPath || path.startsWith(`${itemPath}/`)) {
         return item
       }
@@ -128,7 +146,8 @@ const findItemByRoute = (path, items) => {
 }
 
 const isItemActive = (item) => {
-  return route.path === item.to || route.path.startsWith(`${item.to}/`)
+  if (item.to) return route.path === routePath(item.to) || route.path.startsWith(`${routePath(item.to)}/`)
+  return item.children?.some(child => isItemActive(child)) || false
 }
 
 const isGroupExpanded = (groupId) => {
@@ -141,6 +160,28 @@ const toggleGroup = (groupId) => {
   } else {
     expandedGroups.value.add(groupId)
   }
+}
+
+const onItemClick = (event, item) => {
+  if (item.disabled) event.preventDefault()
+}
+
+const firstNavigableItem = (items) => {
+  for (const item of items) {
+    if (item.disabled) continue
+    if (item.to) return item
+    if (item.children) {
+      const nested = firstNavigableItem(item.children)
+      if (nested) return nested
+    }
+  }
+  return null
+}
+
+const initialItem = () => {
+  const requested = routePath(props.initialRoute)
+  const requestedItem = requested && findItemByRoute(requested)
+  return requestedItem || findItemByRoute(route.path) || firstNavigableItem(props.items)
 }
 
 const expandParentsOfActiveItem = () => {
@@ -165,10 +206,14 @@ const goBack = () => {
   emit('back')
 }
 
-watch(() => props.open, (open) => {
+watch(() => props.open, async (open) => {
   panelVisible.value = open
   if (open) {
     expandParentsOfActiveItem()
+    if (props.navigateOnOpen) {
+      const target = initialItem()
+      if (target && routePath(target.to) !== route.path) await router.push(target.to)
+    }
   }
 }, { immediate: true })
 
@@ -179,7 +224,8 @@ watch(() => route.path, () => {
 
 <style scoped>
 .secondary-sidebar-menu {
-  position: relative;
+  position: absolute;
+  inset: 0;
   z-index: 2;
   display: flex;
   flex-direction: column;
@@ -275,8 +321,32 @@ watch(() => route.path, () => {
 }
 
 .secondary-sidebar-menu__item.active {
-  background: var(--bg-hover);
+  background: color-mix(in srgb, var(--accent), transparent 90%);
   color: var(--accent);
+  font-weight: 600;
+}
+
+.secondary-sidebar-menu__item.active::before {
+  position: absolute;
+  left: 0;
+  top: 12px;
+  width: 3px;
+  height: 16px;
+  border-radius: 2px;
+  background: var(--accent);
+  content: '';
+  animation: secondary-indicator-in var(--duration-normal) var(--ease-standard);
+}
+
+@keyframes secondary-indicator-in {
+  from { opacity: 0; transform: scaleY(.25); }
+  to { opacity: 1; transform: scaleY(1); }
+}
+
+.secondary-sidebar-menu__item.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+  cursor: default;
 }
 
 .secondary-sidebar-menu__parent {
@@ -306,6 +376,35 @@ watch(() => route.path, () => {
 .secondary-sidebar-menu.is-collapsed .secondary-sidebar-menu__back-label,
 .secondary-sidebar-menu.is-collapsed .secondary-sidebar-menu__item-label {
   display: none;
+}
+
+.secondary-sidebar-menu.is-collapsed .secondary-sidebar-menu__chevron {
+  display: none;
+}
+
+.secondary-sidebar-menu.is-collapsed .secondary-sidebar-menu__header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-inline: 2px;
+}
+
+.secondary-sidebar-menu.is-collapsed .secondary-sidebar-menu__back,
+.secondary-sidebar-menu.is-collapsed .secondary-sidebar-menu__item,
+.secondary-sidebar-menu.is-collapsed .secondary-sidebar-menu__group {
+  width: 40px;
+  min-width: 40px;
+  max-width: 40px;
+}
+
+.secondary-sidebar-menu.is-collapsed .secondary-sidebar-menu__back,
+.secondary-sidebar-menu.is-collapsed .secondary-sidebar-menu__item {
+  justify-content: flex-start;
+  padding-inline: 10px;
+}
+
+.secondary-sidebar-menu.is-collapsed .secondary-sidebar-menu__children {
+  padding-left: 0;
 }
 
 /* Expand/Collapse transitions */

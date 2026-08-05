@@ -162,11 +162,13 @@ export {
   FluentNumberBox,
   FluentPageHeader,
   FluentPasswordBox,
+  FluentParallaxView,
   FluentPersonPicture,
   FluentPipsPager,
   FluentPivot,
   FluentPivotItem,
   FluentPopup,
+  FluentProgressBar,
   FluentProgressRing,
   FluentPullToRefresh,
   FluentRadioButton,
@@ -268,9 +270,10 @@ export default {
     app.component('FluentModal', FluentModal)
     app.component('FluentNavigationView', FluentNavigationView)
     app.component('FluentNumberBox', FluentNumberBox)
-    app.component('FluentPageHeader', FluentPageHeader)
-    app.component('FluentPasswordBox', FluentPasswordBox)
-    app.component('FluentPersonPicture', FluentPersonPicture)
+     app.component('FluentPageHeader', FluentPageHeader)
+     app.component('FluentPasswordBox', FluentPasswordBox)
+     app.component('FluentParallaxView', FluentParallaxView)
+     app.component('FluentPersonPicture', FluentPersonPicture)
     app.component('FluentPipsPager', FluentPipsPager)
     app.component('FluentPivot', FluentPivot)
     app.component('FluentPivotItem', FluentPivotItem)

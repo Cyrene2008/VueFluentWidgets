@@ -11,11 +11,10 @@
     >
       <template #example>
         <div class="demo-row">
-          <FluentPersonPicture :size="48" src="/images/avatar.webp" display-name="Cyrene2008" />
-          <FluentPersonPicture :size="64" src="/images/avatar.webp" display-name="Cyrene2008" />
-          <FluentPersonPicture :size="96" src="/images/avatar.webp" display-name="Cyrene2008" />
+          <FluentPersonPicture :size="48" :src="asset('images/avatar.webp')" display-name="Cyrene2008" />
+          <FluentPersonPicture :size="64" :src="asset('images/avatar.webp')" display-name="Cyrene2008" />
+          <FluentPersonPicture :size="96" :src="asset('images/avatar.webp')" display-name="Cyrene2008" />
         </div>
-        <FluentInfoBar severity="info" title="版权声明" description="头像仅供非商业用途展示使用，版权归米哈游所有" />
       </template>
     </FluentControlExample>
 
@@ -25,24 +24,25 @@
     >
       <template #example>
         <div class="demo-row">
-          <FluentPersonPicture :size="64" src="/images/avatar.webp" display-name="Cyrene2008" shape="circle" />
-          <FluentPersonPicture :size="64" src="/images/avatar.webp" display-name="Cyrene2008" shape="square" />
+          <FluentPersonPicture :size="64" :src="asset('images/avatar.webp')" display-name="Cyrene2008" shape="circle" />
+          <FluentPersonPicture :size="64" :src="asset('images/avatar.webp')" display-name="Cyrene2008" shape="square" />
         </div>
-        <FluentInfoBar severity="info" title="版权声明" description="头像仅供非商业用途展示使用，版权归米哈游所有" />
       </template>
     </FluentControlExample>
   </div>
 </template>
 
 <script setup>
-import { FluentPersonPicture, FluentInfoBar, FluentControlExample } from 'vue-fluent-widgets'
+import { FluentPersonPicture, FluentControlExample } from 'vue-fluent-widgets'
 
-const imageCode = `<FluentPersonPicture :size="48" src="/images/avatar.webp" display-name="Cyrene2008" />
-<FluentPersonPicture :size="64" src="/images/avatar.webp" display-name="Cyrene2008" />
-<FluentPersonPicture :size="96" src="/images/avatar.webp" display-name="Cyrene2008" />`
+const asset = path => `${import.meta.env.BASE_URL}${path}`
 
-const shapesCode = `<FluentPersonPicture :size="64" src="/images/avatar.webp" display-name="Cyrene2008" shape="circle" />
-<FluentPersonPicture :size="64" src="/images/avatar.webp" display-name="Cyrene2008" shape="square" />`
+const imageCode = `<FluentPersonPicture :size="48" :src="asset('images/avatar.webp')" display-name="Cyrene2008" />
+<FluentPersonPicture :size="64" :src="asset('images/avatar.webp')" display-name="Cyrene2008" />
+<FluentPersonPicture :size="96" :src="asset('images/avatar.webp')" display-name="Cyrene2008" />`
+
+const shapesCode = `<FluentPersonPicture :size="64" :src="asset('images/avatar.webp')" display-name="Cyrene2008" shape="circle" />
+<FluentPersonPicture :size="64" :src="asset('images/avatar.webp')" display-name="Cyrene2008" shape="square" />`
 </script>
 
 <style scoped>

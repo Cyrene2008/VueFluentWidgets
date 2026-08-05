@@ -48,16 +48,16 @@ const open2 = ref(false)
 
 const menuItems = [
   { id: 'home', label: '首页', to: '/' },
-  { id: 'settings', label: '设置', to: '/settings' },
-  { id: 'profile', label: '个人资料', to: '/profile' },
-  { id: 'help', label: '帮助', to: '/help' }
+  { id: 'button', label: '按钮', to: '/button' },
+  { id: 'material', label: '材质系统', to: '/material' },
+  { id: 'about', label: '关于组件库', to: '/typography' }
 ]
 
 const menuItemsWithIcons = [
   { id: 'home', label: '首页', icon: 'home', to: '/' },
-  { id: 'settings', label: '设置', icon: 'settings', to: '/settings' },
-  { id: 'profile', label: '个人资料', icon: 'person', to: '/profile' },
-  { id: 'help', label: '帮助', icon: 'help', to: '/help' }
+  { id: 'button', label: '按钮', icon: 'button', to: '/button' },
+  { id: 'material', label: '材质系统', icon: 'material', to: '/material' },
+  { id: 'about', label: '关于组件库', icon: 'info', to: '/typography' }
 ]
 </script>
 
@@ -67,10 +67,12 @@ const menuItemsWithIcons = [
 }
 
 .sidebar-container {
+  position: relative;
   width: 250px;
   background: var(--bg-card);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-2);
   min-height: 300px;
+  overflow: hidden;
 }
 </style>
