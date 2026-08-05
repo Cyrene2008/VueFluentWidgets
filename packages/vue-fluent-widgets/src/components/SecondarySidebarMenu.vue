@@ -179,8 +179,7 @@ watch(() => route.path, () => {
 
 <style scoped>
 .secondary-sidebar-menu {
-  position: absolute;
-  inset: 0;
+  position: relative;
   z-index: 2;
   display: flex;
   flex-direction: column;
