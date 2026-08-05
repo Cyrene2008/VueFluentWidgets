@@ -38,7 +38,7 @@
 
       <div class="footer-legal">
         <span>Copyright © Cyrene2008</span>
-        <a href="https://github.com/Cyrene2008/VueFluentWidgets/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT License</a>
+        <a href="https://github.com/Cyrene2008/VueFluentWidgets/blob/Cyrene/LICENSE" target="_blank" rel="noopener noreferrer">MIT License</a>
         <a href="https://icp.gov.moe/?keyword=20265293" target="_blank" rel="noopener noreferrer">萌ICP备20265293号</a>
       </div>
     </div>
