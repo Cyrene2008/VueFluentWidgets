@@ -120,7 +120,7 @@ const props = defineProps({
   navigateOnOpen: { type: Boolean, default: false }
 })
 
-const emit = defineEmits(['back', 'toggle-collapse'])
+const emit = defineEmits(['back', 'toggle-collapse', 'navigate'])
 const route = useRoute()
 const router = useRouter()
 const menuRef = ref(null)
@@ -164,6 +164,7 @@ const toggleGroup = (groupId) => {
 
 const onItemClick = (event, item) => {
   if (item.disabled) event.preventDefault()
+  else emit('navigate', item)
 }
 
 const firstNavigableItem = (items) => {

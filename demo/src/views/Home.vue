@@ -322,4 +322,29 @@ const categories = [
   margin: 0;
   color: var(--text-secondary);
 }
+
+@media (max-width: 960px) {
+  .features-grid,
+  .categories-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .stats-section { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+}
+
+@media (max-width: 600px) {
+  .hero-section { padding: 32px 0 36px; }
+  .hero-section h1 { font-size: 36px; line-height: 1.12; }
+  .hero-description { font-size: 16px; }
+  .hero-actions { flex-direction: column; align-items: stretch; max-width: 280px; margin-inline: auto; }
+  .stats-section { gap: 20px 12px; padding: 24px 0; margin-bottom: 36px; }
+  .stat-value { font-size: 26px; }
+  .features-grid,
+  .categories-grid,
+  .material-preview-grid { grid-template-columns: 1fr; gap: 16px; }
+  .features-section,
+  .categories-section,
+  .material-preview-section { margin-bottom: 36px; }
+  .features-section h2,
+  .categories-section h2,
+  .material-preview-section h2 { font-size: 24px; }
+  .material-preview-item { height: 160px; }
+}
 </style>

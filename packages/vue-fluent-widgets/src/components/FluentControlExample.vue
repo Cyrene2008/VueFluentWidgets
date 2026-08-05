@@ -142,7 +142,7 @@ const copyCode = () => {
 
 .source-code-content {
   padding: 16px;
-  background: #f8f8f8;
+  background: var(--bg-code);
   overflow-x: auto;
 }
 
@@ -151,10 +151,17 @@ const copyCode = () => {
   font-family: 'Consolas', monospace;
   font-size: 14px;
   line-height: 1.5;
-  color: var(--text-primary);
+  color: var(--text-code);
 }
 
 .source-code-content code {
   white-space: pre;
+}
+
+@media (max-width: 600px) {
+  .control-example-root { margin-bottom: 24px; }
+  .example-display { padding: 18px 14px; }
+  .source-code-content { padding: 14px; }
+  .source-code-content pre { font-size: 12px; }
 }
 </style>

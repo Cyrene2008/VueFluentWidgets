@@ -1,25 +1,38 @@
 <template>
+  <header class="navigation-dock__mobile-bar">
+    <button type="button" class="navigation-dock__mobile-action" aria-label="打开导航" @click="mobileOpen = true">
+      <FluentIcon icon="line-horizontal-3-20-regular" :width="20" />
+    </button>
+    <button type="button" class="navigation-dock__mobile-action" aria-label="返回上一个页面" @click="router.back()">
+      <FluentIcon icon="arrow-left-20-regular" :width="20" />
+    </button>
+    <img :src="asset('images/avatar.webp')" alt="" class="navigation-dock__mobile-logo" />
+    <span class="navigation-dock__mobile-title">Vue Fluent Widgets</span>
+  </header>
+  <Transition name="dock-backdrop">
+    <button v-if="mobileOpen" type="button" class="navigation-dock__backdrop" aria-label="关闭导航" @click="closeNavigation" />
+  </Transition>
   <nav
     class="navigation-dock"
-    :class="{ collapsed: isCollapsed, 'secondary-open': Boolean(activeSecondary) }"
-    @keydown.esc="closeSecondary"
+    :class="{ collapsed: dockCollapsed, 'secondary-open': Boolean(activeSecondary), 'mobile-open': mobileOpen }"
+    @keydown.esc="closeNavigation"
   >
     <section class="navigation-dock__primary">
       <header class="navigation-dock__header">
         <button
           type="button"
           class="navigation-dock__toggle"
-          :aria-label="isCollapsed ? '展开导航' : '收起导航'"
-          :title="isCollapsed ? '展开导航' : '收起导航'"
-          @click="isCollapsed = !isCollapsed"
+          :aria-label="isMobile ? '关闭导航' : dockCollapsed ? '展开导航' : '收起导航'"
+          :title="isMobile ? '关闭导航' : dockCollapsed ? '展开导航' : '收起导航'"
+          @click="toggleDock"
         >
-          <FluentIcon icon="line-horizontal-3-20-regular" :width="20" class="navigation-dock__toggle-icon" :class="{ collapsed: isCollapsed }" />
+          <FluentIcon :icon="isMobile ? 'dismiss-20-regular' : 'line-horizontal-3-20-regular'" :width="20" class="navigation-dock__toggle-icon" :class="{ collapsed: dockCollapsed }" />
         </button>
-        <button v-if="!isCollapsed" type="button" class="navigation-dock__back" aria-label="返回上一个页面" title="返回上一个页面" @click="router.back()">
+        <button v-if="!dockCollapsed" type="button" class="navigation-dock__back" aria-label="返回上一个页面" title="返回上一个页面" @click="router.back()">
           <FluentIcon icon="arrow-left-20-regular" :width="20" />
         </button>
-        <img v-if="!isCollapsed" :src="asset('images/avatar.webp')" alt="" class="navigation-dock__logo" />
-        <span v-if="!isCollapsed" class="navigation-dock__title">Vue Fluent Widgets</span>
+        <img v-if="!dockCollapsed" :src="asset('images/avatar.webp')" alt="" class="navigation-dock__logo" />
+        <span v-if="!dockCollapsed" class="navigation-dock__title">Vue Fluent Widgets</span>
       </header>
 
       <div class="navigation-dock__items">
@@ -30,10 +43,10 @@
             class="navigation-dock__item"
             :class="{ active: isItemActive(item) }"
             :title="localizedLabel(item)"
-            @click="closeSecondary"
+            @click="onPrimaryNavigate"
           >
             <FluentIcon v-if="item.icon" :icon="item.icon" :width="20" />
-            <span v-if="!isCollapsed" class="navigation-dock__label">{{ localizedLabel(item) }}</span>
+            <span v-if="!dockCollapsed" class="navigation-dock__label">{{ localizedLabel(item) }}</span>
           </router-link>
           <button
             v-else
@@ -45,7 +58,7 @@
             @click="openSecondary(item)"
           >
             <FluentIcon v-if="item.icon" :icon="item.icon" :width="20" />
-            <span v-if="!isCollapsed" class="navigation-dock__label">{{ localizedLabel(item) }}</span>
+            <span v-if="!dockCollapsed" class="navigation-dock__label">{{ localizedLabel(item) }}</span>
             <FluentIcon icon="chevron-right-16-regular" :width="14" class="navigation-dock__chevron" />
           </button>
         </template>
@@ -53,25 +66,26 @@
       <footer class="navigation-dock__footer">
         <button type="button" class="navigation-dock__item navigation-dock__language" :title="language === 'zh' ? '切换到 English' : 'Switch to 中文'" @click="toggleLanguage">
           <FluentIcon icon="globe-20-regular" :width="20" />
-          <span v-if="!isCollapsed" class="navigation-dock__label">{{ language === 'zh' ? '中文' : 'English' }}</span>
+          <span v-if="!dockCollapsed" class="navigation-dock__label">{{ language === 'zh' ? '中文' : 'English' }}</span>
         </button>
       </footer>
     </section>
 
     <SecondarySidebarMenu
       :open="Boolean(activeSecondary)"
-      :collapsed="isCollapsed"
+      :collapsed="dockCollapsed"
       :items="secondaryItems"
       navigate-on-open
       :back-label="language === 'zh' ? '返回一级菜单' : 'Back to main menu'"
       @back="closeSecondary"
       @toggle-collapse="isCollapsed = false"
+      @navigate="onSecondaryNavigate"
     />
   </nav>
 </template>
 
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { FluentIcon, SecondarySidebarMenu } from 'vue-fluent-widgets'
 
@@ -83,8 +97,16 @@ const route = useRoute()
 const router = useRouter()
 const asset = path => `${import.meta.env.BASE_URL}${path}`
 const isCollapsed = ref(false)
+const isMobile = ref(false)
+const mobileOpen = ref(false)
 const activeSecondary = ref(null)
 const language = ref(localStorage.getItem('demo-language') === 'en' ? 'en' : 'zh')
+const dockCollapsed = computed(() => !isMobile.value && isCollapsed.value)
+let mobileQuery
+const updateMobile = event => {
+  isMobile.value = event.matches
+  if (!event.matches) mobileOpen.value = false
+}
 
 const englishLabels = {
   home: 'Home',
@@ -141,6 +163,25 @@ const closeSecondary = () => {
   activeSecondary.value = null
 }
 
+const closeNavigation = () => {
+  closeSecondary()
+  mobileOpen.value = false
+}
+
+const toggleDock = () => {
+  if (isMobile.value) closeNavigation()
+  else isCollapsed.value = !isCollapsed.value
+}
+
+const onPrimaryNavigate = () => {
+  closeSecondary()
+  if (isMobile.value) mobileOpen.value = false
+}
+
+const onSecondaryNavigate = () => {
+  if (isMobile.value) mobileOpen.value = false
+}
+
 const toggleLanguage = () => {
   language.value = language.value === 'zh' ? 'en' : 'zh'
   localStorage.setItem('demo-language', language.value)
@@ -149,9 +190,22 @@ const toggleLanguage = () => {
 watch(() => route.path, path => {
   activeSecondary.value = menuForRoute(path)
 }, { immediate: true })
+
+onMounted(() => {
+  mobileQuery = window.matchMedia('(max-width: 768px)')
+  updateMobile(mobileQuery)
+  mobileQuery.addEventListener('change', updateMobile)
+})
+
+onUnmounted(() => mobileQuery?.removeEventListener('change', updateMobile))
 </script>
 
 <style scoped>
+.navigation-dock__mobile-bar,
+.navigation-dock__backdrop {
+  display: none;
+}
+
 .navigation-dock {
   position: relative;
   z-index: 20;
@@ -349,16 +403,66 @@ watch(() => route.path, path => {
 }
 
 @media (max-width: 768px) {
-  .navigation-dock {
-    flex-basis: 56px;
-    width: 56px;
+  .navigation-dock__mobile-bar {
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 90;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 56px;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border-subtle);
+    background: var(--bg-acrylic);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
   }
 
-  .navigation-dock:not(.collapsed) {
-    flex-basis: var(--dock-width);
-    width: var(--dock-width);
+  .navigation-dock__mobile-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text-secondary);
   }
+
+  .navigation-dock__mobile-logo { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; }
+  .navigation-dock__mobile-title { overflow: hidden; color: var(--text-primary); font-size: 14px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+
+  .navigation-dock__backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 95;
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    background: rgba(0, 0, 0, .36);
+  }
+
+  .navigation-dock {
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 100;
+    width: min(320px, calc(100vw - 48px));
+    height: 100dvh;
+    box-shadow: var(--shadow-16);
+    transform: translateX(-100%);
+    transition: transform var(--duration-normal) var(--ease-standard);
+  }
+
+  .navigation-dock.mobile-open { transform: translateX(0); }
+  .navigation-dock__primary { flex-basis: 100%; }
 }
+
+.dock-backdrop-enter-active,
+.dock-backdrop-leave-active { transition: opacity var(--duration-fast) ease; }
+.dock-backdrop-enter-from,
+.dock-backdrop-leave-to { opacity: 0; }
 
 @media (prefers-reduced-motion: reduce) {
   .navigation-dock,

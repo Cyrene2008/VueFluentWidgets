@@ -313,7 +313,7 @@ const usageCode = `// 基础用法
 }
 
 .usage-section pre {
-  background: #f5f5f5;
+  background: var(--bg-base);
   padding: 16px;
   border-radius: var(--radius-md);
   overflow-x: auto;

@@ -14,11 +14,13 @@
   --bg-acrylic: rgba(255, 240, 248, 0.82);
   --bg-mica: linear-gradient(135deg, rgba(255,240,248,0.97), rgba(253,245,250,0.97));
   --bg-mica-alt: linear-gradient(135deg, #f9eaf3, #f6e0ed);
+  --bg-code: #f8f3f6;
 
   --text-primary: #3d1a2e;
   --text-secondary: #6b3a55;
   --text-muted: #a16d88;
   --text-on-accent: #ffffff;
+  --text-code: #3d1a2e;
 
   --border-default: rgba(234, 94, 193, 0.1);
   --border-subtle: rgba(234, 94, 193, 0.06);
@@ -61,9 +63,11 @@
   --bg-acrylic: rgba(40, 22, 35, 0.82);
   --bg-mica: linear-gradient(135deg, rgba(40,22,35,0.95), rgba(30,15,25,0.95));
   --bg-mica-alt: linear-gradient(135deg, #402535, #321d2a);
+  --bg-code: #24131e;
   --text-primary: #fce4f0;
   --text-secondary: #d4a0bc;
   --text-muted: #a87590;
+  --text-code: #f7dce9;
   --border-default: rgba(234, 94, 193, 0.15);
   --border-subtle: rgba(234, 94, 193, 0.08);
   --border-strong: rgba(234, 94, 193, 0.25);
@@ -82,15 +86,17 @@
     --bg-acrylic: rgba(40, 22, 35, 0.82);
     --bg-mica: linear-gradient(135deg, rgba(40,22,35,0.95), rgba(30,15,25,0.95));
     --bg-mica-alt: linear-gradient(135deg, #402535, #321d2a);
+    --bg-code: #24131e;
     --text-primary: #fce4f0;
     --text-secondary: #d4a0bc;
     --text-muted: #a87590;
+    --text-code: #f7dce9;
     --border-default: rgba(234, 94, 193, 0.15);
     --border-subtle: rgba(234, 94, 193, 0.08);
     --border-strong: rgba(234, 94, 193, 0.25);
   }
 }
 
-.fluent { --fluent-accent: #0078d4; --bg-base: #f3f3f3; --bg-card: rgba(255,255,255,.72); --bg-card-solid: #ffffff; --bg-hover: rgba(0,0,0,.045); --bg-acrylic: rgba(252,252,252,.8); --bg-mica: linear-gradient(135deg,#f4f4f4,#ececec); --text-primary: #1b1b1b; --text-secondary: #424242; --text-muted: #707070; --border-default: rgba(0,0,0,.08); --border-subtle: rgba(0,0,0,.055); --border-strong: rgba(0,0,0,.14); }
+.fluent { --fluent-accent: #0078d4; --bg-base: #f3f3f3; --bg-card: rgba(255,255,255,.72); --bg-card-solid: #ffffff; --bg-hover: rgba(0,0,0,.045); --bg-acrylic: rgba(252,252,252,.8); --bg-mica: linear-gradient(135deg,#f4f4f4,#ececec); --bg-code: #f5f5f5; --text-primary: #1b1b1b; --text-secondary: #424242; --text-muted: #707070; --text-code: #1b1b1b; --border-default: rgba(0,0,0,.08); --border-subtle: rgba(0,0,0,.055); --border-strong: rgba(0,0,0,.14); }
 .fluent.dark,
-.fluent.theme-dark { --bg-base: #202020; --bg-card: rgba(45,45,45,.78); --bg-card-solid: #2b2b2b; --bg-hover: #323232; --bg-acrylic: rgba(32,32,32,.86); --bg-mica: linear-gradient(135deg,#272727,#202020); --text-primary: #ffffff; --text-secondary: #d6d6d6; --text-muted: #a0a0a0; --border-default: #444; --border-subtle: rgba(255,255,255,.07); --border-strong: rgba(255,255,255,.16); }
+.fluent.theme-dark { --bg-base: #202020; --bg-card: rgba(45,45,45,.78); --bg-card-solid: #2b2b2b; --bg-hover: #323232; --bg-acrylic: rgba(32,32,32,.86); --bg-mica: linear-gradient(135deg,#272727,#202020); --bg-code: #171717; --text-primary: #ffffff; --text-secondary: #d6d6d6; --text-muted: #a0a0a0; --text-code: #f2f2f2; --border-default: #444; --border-subtle: rgba(255,255,255,.07); --border-strong: rgba(255,255,255,.16); }

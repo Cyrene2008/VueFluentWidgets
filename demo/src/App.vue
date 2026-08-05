@@ -102,22 +102,6 @@ const navItems = [
 :root {
   --fluent-accent: #ea5ec1;
   --font-ui: 'MiSans', 'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif;
-  --radius-md: 4px;
-  --duration-fast: 0.1s;
-  --accent: var(--fluent-accent);
-  --accent-light: color-mix(in srgb, var(--accent), white 34%);
-  --accent-dark: color-mix(in srgb, var(--accent), black 18%);
-  --accent-hover: color-mix(in srgb, var(--accent), black 12%);
-  --text-on-accent: #ffffff;
-  --text-primary: #1a1a1a;
-  --text-secondary: #616161;
-  --text-muted: #9e9e9e;
-  --bg-card: #ffffff;
-  --bg-card-solid: #ffffff;
-  --bg-hover: #f5f5f5;
-  --border-strong: #e0e0e0;
-  --shadow-2: 0 1px 2px rgba(0, 0, 0, 0.1);
-  --shadow-4: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 * {
@@ -128,7 +112,7 @@ const navItems = [
 
 body {
   font-family: var(--font-ui);
-  background: #f5f5f5;
+  background: var(--bg-base);
   color: var(--text-primary);
 }
 
@@ -154,6 +138,13 @@ body {
   width: 100%;
   overflow-y: auto;
   overflow-x: hidden;
+  background: var(--bg-base);
+}
+
+.demo-content > :not(.demo-footer) {
+  width: 100%;
+  max-width: 1280px !important;
+  margin-inline: auto;
 }
 
 .route-view-enter-active,
@@ -206,11 +197,28 @@ body {
 }
 
 .demo-code {
-  background: #f8f8f8;
+  background: var(--bg-code);
+  color: var(--text-code);
   border-radius: var(--radius-md);
   padding: 16px;
   margin-top: 16px;
   overflow-x: auto;
+}
+
+@media (max-width: 768px) {
+  .demo-content {
+    padding: 72px 16px 24px;
+  }
+
+  .demo-section {
+    padding: 18px;
+  }
+}
+
+@media (max-width: 420px) {
+  .demo-content {
+    padding-inline: 12px;
+  }
 }
 
 .demo-code pre {
