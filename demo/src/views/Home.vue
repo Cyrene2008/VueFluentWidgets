@@ -43,7 +43,7 @@
           <p>完全遵循微软 Fluent Design System 设计规范</p>
         </div>
         <div class="feature-card">
-          <FluentIcon icon="material-20-regular" :width="32" />
+          <FluentIcon icon="layer-20-regular" :width="32" />
           <h3>材质效果</h3>
           <p>支持 Solid、Acrylic、Mica、Liquid Glass 等材质</p>
         </div>
