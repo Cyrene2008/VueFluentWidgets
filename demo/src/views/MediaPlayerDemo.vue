@@ -22,6 +22,21 @@
     </FluentControlExample>
 
     <FluentControlExample 
+      header-text="音频播放器" 
+      :source-code="audioCode"
+    >
+      <template #example>
+        <div class="audio-container">
+          <FluentMediaPlayer 
+            src="/trimmed_NewPage.mp3"
+            class="demo-audio"
+          />
+          <FluentInfoBar severity="info" title="版权声明" description="以上音频仅供非商业用途展示使用，版权归米哈游所有" />
+        </div>
+      </template>
+    </FluentControlExample>
+
+    <FluentControlExample 
       header-text="图片画廊" 
       :source-code="galleryCode"
     >
@@ -84,6 +99,10 @@ const playerCode = `<FluentMediaPlayer
   poster="/images/Cyrene01.webp"
 />`
 
+const audioCode = `<FluentMediaPlayer 
+  src="/trimmed_NewPage.mp3"
+/>`
+
 const galleryCode = `<FluentImageViewer 
   src="/images/Cyrene01.webp" 
   alt="图片"
@@ -123,9 +142,20 @@ const avatarCode = `<FluentPersonPicture
   gap: 16px;
 }
 
+.audio-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
 .demo-player {
   width: 100%;
   max-width: 640px;
+}
+
+.demo-audio {
+  width: 100%;
+  max-width: 400px;
 }
 
 .image-gallery {
