@@ -2,7 +2,26 @@
   <div class="demo-app">
     <nav class="demo-nav">
       <h1>Vue Fluent Widgets</h1>
-      <SecondarySidebarMenu :items="navItems" :open="true" />
+      <div class="nav-menu">
+        <template v-for="category in navItems" :key="category.id">
+          <div class="nav-category">
+            <div class="nav-category-label">{{ category.label }}</div>
+            <template v-if="category.children">
+              <router-link 
+                v-for="item in category.children" 
+                :key="item.id"
+                :to="item.to" 
+                class="nav-item"
+              >
+                {{ item.label }}
+              </router-link>
+            </template>
+            <router-link v-else :to="category.to" class="nav-item">
+              {{ category.label }}
+            </router-link>
+          </div>
+        </template>
+      </div>
     </nav>
     <div class="demo-main">
       <main class="demo-content">
@@ -14,7 +33,6 @@
 </template>
 
 <script setup>
-import { SecondarySidebarMenu } from 'vue-fluent-widgets'
 import DemoFooter from './components/DemoFooter.vue'
 
 const navItems = [
