@@ -10,6 +10,9 @@ importers:
 
   demo:
     dependencies:
+      '@iconify-json/fluent':
+        specifier: ^1.2.10
+        version: 1.2.54
       vue:
         specifier: ^3.5.17
         version: 3.5.41
@@ -38,6 +41,9 @@ importers:
       vue:
         specifier: ^3.5.0
         version: 3.5.41
+      vue-router:
+        specifier: ^4.0.0
+        version: 4.6.4(vue@3.5.41)
     devDependencies:
       '@vitejs/plugin-vue':
         specifier: ^5.2.4
