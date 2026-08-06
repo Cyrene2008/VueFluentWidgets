@@ -1,7 +1,9 @@
 <template>
   <div
+    ref="rootRef"
     class="fluent-media-player"
-    :class="{ 'is-audio': isAudio, 'is-fullscreen': isFullscreen }"
+    :class="{ 'is-audio': isAudio, 'is-fullscreen': isFullscreen, 'animations-disabled': !internalAnimationsEnabled }"
+    :style="playerStyle"
     @pointermove="showControlsTemporarily"
     @pointerdown="showControlsTemporarily"
   >
@@ -10,7 +12,7 @@
         :is="isAudio ? 'audio' : 'video'"
         ref="mediaRef"
         class="media-element"
-        :style="{ objectFit: fit }"
+        :style="mediaStyle"
         :src="src"
         :poster="isAudio ? undefined : poster"
         :autoplay="autoplay"
@@ -58,7 +60,21 @@
       </button>
 
       <div class="media-controls" :class="{ 'is-visible': showControls || isAudio }" @click.stop @pointerdown.stop>
-        <div class="controls-progress" role="slider" :aria-valuenow="currentTime" :aria-valuemax="duration" tabindex="0" @pointerdown="seekTo">
+        <div
+          class="controls-progress"
+          role="slider"
+          aria-label="播放进度"
+          aria-valuemin="0"
+          :aria-valuenow="currentTime"
+          :aria-valuemax="duration"
+          tabindex="0"
+          @pointerdown="startSeek"
+          @pointermove="moveSeek"
+          @pointerup="endSeek"
+          @pointercancel="endSeek"
+          @lostpointercapture="endSeek"
+          @keydown="onSeekKeydown"
+        >
           <div class="progress-track">
             <div class="progress-buffer" :style="bufferStyle"></div>
             <div class="progress-fill" :style="progressStyle"></div>
@@ -112,15 +128,26 @@
               <FluentIcon icon="picture-in-picture-20-regular" :width="20" />
             </button>
 
-            <div class="control-menu volume-control">
-              <button type="button" class="control-button" :aria-label="mutedState ? '取消静音' : '音量'" @click="toggleVolumeMenu">
+            <button
+              v-if="showMinimize"
+              type="button"
+              class="control-button"
+              aria-label="在迷你播放器中继续"
+              title="在迷你播放器中继续"
+              @click="minimize"
+            >
+              <FluentIcon icon="arrow-minimize-20-regular" :width="20" />
+            </button>
+
+            <div ref="volumeControlRef" class="control-menu volume-control" @pointerenter="openVolumeOnHover" @pointerleave="scheduleVolumeClose" @focusin="openVolumeMenu" @focusout="scheduleVolumeClose">
+              <button type="button" class="control-button" :aria-label="mutedState ? '取消静音' : '音量'" :aria-expanded="showVolumeMenu" aria-controls="media-volume-popover" @click="toggleVolumeMenu">
                 <FluentIcon :icon="volumeIcon" :width="20" />
               </button>
-              <div v-if="showVolumeMenu" class="control-popover volume-popover">
+              <div v-if="showVolumeMenu" id="media-volume-popover" class="control-popover volume-popover">
                 <button type="button" class="popover-mute" @click="toggleMute">
                   <FluentIcon :icon="volumeIcon" :width="18" />
                 </button>
-                <input class="volume-slider" type="range" min="0" max="1" step="0.05" :value="mutedState ? 0 : volumeLevel" aria-label="音量" @input="setVolume" />
+                <input class="volume-slider" type="range" min="0" max="1" step="0.01" :value="mutedState ? 0 : volumeLevel" aria-label="音量" @input="setVolume" />
               </div>
             </div>
 
@@ -135,7 +162,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import FluentIcon from './FluentIcon.vue'
 import FluentProgressRing from './FluentProgressRing.vue'
 
@@ -147,6 +174,11 @@ const props = defineProps({
   subtitle: { type: String, default: '' },
   type: { type: String, default: 'auto' },
   fit: { type: String, default: 'contain' },
+  width: { type: [String, Number], default: '100%' },
+  height: { type: [String, Number], default: 'auto' },
+  maxWidth: { type: [String, Number], default: '100%' },
+  maxHeight: { type: [String, Number], default: '75vh' },
+  disableAnimations: { type: Boolean, default: false },
   autoplay: { type: Boolean, default: false },
   loop: { type: Boolean, default: false },
   muted: { type: Boolean, default: false },
@@ -154,13 +186,16 @@ const props = defineProps({
   playbackRate: { type: Number, default: 1 },
   showLoop: { type: Boolean, default: true },
   showPlaybackRate: { type: Boolean, default: true },
-  showPictureInPicture: { type: Boolean, default: true }
+  showPictureInPicture: { type: Boolean, default: true },
+  showMinimize: { type: Boolean, default: false }
 })
 
-const emit = defineEmits(['play', 'pause', 'ended', 'timeupdate', 'loadedmetadata', 'volumechange', 'ratechange'])
+const emit = defineEmits(['play', 'pause', 'ended', 'timeupdate', 'loadedmetadata', 'volumechange', 'ratechange', 'autoplayblocked', 'minimize'])
 
 const containerRef = ref(null)
+const rootRef = ref(null)
 const mediaRef = ref(null)
+const volumeControlRef = ref(null)
 const isPlaying = ref(false)
 const isLoading = ref(true)
 const currentTime = ref(0)
@@ -175,8 +210,15 @@ const loopEnabled = ref(props.loop)
 const playbackRateValue = ref(props.playbackRate)
 const showRateMenu = ref(false)
 const showVolumeMenu = ref(false)
+const internalAnimationsEnabled = ref(!props.disableAnimations)
 const playbackRates = [0.5, 0.75, 1, 1.25, 1.5, 2]
 let controlsTimer = null
+let progressFrame = null
+let seekFrame = null
+let seekPointerId = null
+let pendingSeek = null
+let volumeCloseTimer = null
+let lastAudibleVolume = volumeLevel.value > 0 ? volumeLevel.value : 0.5
 
 const isAudio = computed(() => {
   if (props.type !== 'auto') return props.type === 'audio'
@@ -189,20 +231,90 @@ const fileName = computed(() => {
 })
 
 const pictureInPictureSupported = computed(() => typeof document !== 'undefined' && Boolean(document.pictureInPictureEnabled))
-const progressStyle = computed(() => ({ width: `${duration.value ? currentTime.value / duration.value * 100 : 0}%` }))
+const cssLength = value => typeof value === 'number' ? `${value}px` : value
+const playerStyle = computed(() => ({ width: cssLength(props.width), height: cssLength(props.height), maxWidth: cssLength(props.maxWidth) }))
+const mediaStyle = computed(() => ({ objectFit: props.fit, height: props.height === 'auto' ? 'auto' : '100%', maxHeight: cssLength(props.maxHeight) }))
+const progressStyle = computed(() => ({ transform: `scaleX(${duration.value ? Math.max(0, Math.min(1, currentTime.value / duration.value)) : 0})` }))
 const bufferStyle = computed(() => ({ width: `${buffered.value}%` }))
 const volumeIcon = computed(() => mutedState.value || volumeLevel.value === 0 ? 'speaker-mute-20-regular' : volumeLevel.value < 0.5 ? 'speaker-1-20-regular' : 'speaker-2-20-regular')
 
 function togglePlay() {
   const media = mediaRef.value
   if (!media) return
-  if (media.paused) media.play().catch(() => {})
-  else media.pause()
+  if (media.paused) play()
+  else pause()
 }
+
+async function play() {
+  if (!mediaRef.value) return false
+  try {
+    await mediaRef.value.play()
+    return true
+  } catch (error) {
+    emit('autoplayblocked', error)
+    return false
+  }
+}
+
+function pause() {
+  mediaRef.value?.pause()
+}
+
+function seek(seconds) {
+  const media = mediaRef.value
+  if (!media || !Number.isFinite(seconds)) return
+  const upperBound = Number.isFinite(media.duration) ? media.duration : seconds
+  media.currentTime = Math.max(0, Math.min(upperBound, seconds))
+  currentTime.value = media.currentTime
+}
+
+function pauseInternalAnimation() {
+  internalAnimationsEnabled.value = false
+}
+
+function resumeInternalAnimation() {
+  internalAnimationsEnabled.value = true
+}
+
+function minimize() {
+  const media = mediaRef.value
+  if (!media) return
+  const state = {
+    src: props.src,
+    poster: props.poster,
+    title: props.title,
+    artist: props.artist,
+    subtitle: props.subtitle,
+    type: isAudio.value ? 'audio' : 'video',
+    currentTime: media.currentTime,
+    playing: !media.paused && !media.ended,
+    volume: media.volume,
+    muted: media.muted,
+    playbackRate: media.playbackRate,
+    loop: media.loop
+  }
+  pause()
+  emit('minimize', state)
+}
+
+defineExpose({
+  el: rootRef,
+  contentEl: containerRef,
+  play,
+  pause,
+  seek,
+  minimize,
+  pauseInternalAnimation,
+  resumeInternalAnimation
+})
 
 function toggleMute() {
   const media = mediaRef.value
   if (!media) return
+  if (mutedState.value && volumeLevel.value === 0) {
+    volumeLevel.value = lastAudibleVolume
+    media.volume = volumeLevel.value
+  }
   mutedState.value = !mutedState.value
   media.muted = mutedState.value
   emit('volumechange', { volume: volumeLevel.value, muted: mutedState.value })
@@ -212,6 +324,7 @@ function setVolume(event) {
   const media = mediaRef.value
   if (!media) return
   volumeLevel.value = Number(event.target.value)
+  if (volumeLevel.value > 0) lastAudibleVolume = volumeLevel.value
   mutedState.value = volumeLevel.value === 0
   media.volume = volumeLevel.value
   media.muted = mutedState.value
@@ -236,8 +349,24 @@ function toggleRateMenu() {
 }
 
 function toggleVolumeMenu() {
+  if (volumeCloseTimer) clearTimeout(volumeCloseTimer)
   showVolumeMenu.value = !showVolumeMenu.value
   showRateMenu.value = false
+}
+
+function openVolumeMenu() {
+  if (volumeCloseTimer) clearTimeout(volumeCloseTimer)
+  showVolumeMenu.value = true
+  showRateMenu.value = false
+}
+
+function openVolumeOnHover() {
+  if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) openVolumeMenu()
+}
+
+function scheduleVolumeClose() {
+  if (volumeCloseTimer) clearTimeout(volumeCloseTimer)
+  volumeCloseTimer = setTimeout(() => { showVolumeMenu.value = false }, 220)
 }
 
 async function togglePictureInPicture() {
@@ -257,13 +386,69 @@ async function toggleFullscreen() {
   } catch {}
 }
 
-function seekTo(event) {
+function applyPendingSeek() {
+  seekFrame = null
   const media = mediaRef.value
-  if (!media || !duration.value) return
-  const rect = event.currentTarget.getBoundingClientRect()
-  const ratio = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width))
+  if (!media || !duration.value || !pendingSeek) return
+  const { clientX, target } = pendingSeek
+  const rect = target.getBoundingClientRect()
+  const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width))
   media.currentTime = ratio * duration.value
   currentTime.value = media.currentTime
+}
+
+function queueSeek(event) {
+  pendingSeek = { clientX: event.clientX, target: event.currentTarget }
+  if (!seekFrame) seekFrame = requestAnimationFrame(applyPendingSeek)
+}
+
+function startSeek(event) {
+  if (event.pointerType === 'mouse' && event.button !== 0) return
+  seekPointerId = event.pointerId
+  event.currentTarget.setPointerCapture(event.pointerId)
+  queueSeek(event)
+}
+
+function moveSeek(event) {
+  if (event.pointerId !== seekPointerId) return
+  queueSeek(event)
+}
+
+function endSeek(event) {
+  if (event.pointerId !== seekPointerId) return
+  queueSeek(event)
+  if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId)
+  seekPointerId = null
+}
+
+function onSeekKeydown(event) {
+  const media = mediaRef.value
+  if (!media || !duration.value) return
+  const step = event.shiftKey ? 1 : 5
+  const next = event.key === 'Home' ? 0 : event.key === 'End' ? duration.value : event.key === 'ArrowLeft' ? media.currentTime - step : event.key === 'ArrowRight' ? media.currentTime + step : null
+  if (next == null) return
+  event.preventDefault()
+  media.currentTime = Math.max(0, Math.min(duration.value, next))
+  currentTime.value = media.currentTime
+}
+
+function syncVisualProgress() {
+  if (!mediaRef.value || mediaRef.value.paused || mediaRef.value.ended) {
+    progressFrame = null
+    return
+  }
+  if (seekPointerId == null) currentTime.value = mediaRef.value.currentTime
+  progressFrame = requestAnimationFrame(syncVisualProgress)
+}
+
+function startProgressAnimation() {
+  if (progressFrame) cancelAnimationFrame(progressFrame)
+  progressFrame = requestAnimationFrame(syncVisualProgress)
+}
+
+function stopProgressAnimation() {
+  if (progressFrame) cancelAnimationFrame(progressFrame)
+  progressFrame = null
 }
 
 function formatTime(seconds) {
@@ -283,18 +468,21 @@ function showControlsTemporarily() {
 
 function onPlay() {
   isPlaying.value = true
+  startProgressAnimation()
   showControlsTemporarily()
   emit('play')
 }
 
 function onPause() {
   isPlaying.value = false
+  stopProgressAnimation()
   showControls.value = true
   emit('pause')
 }
 
 function onEnded() {
   isPlaying.value = false
+  stopProgressAnimation()
   emit('ended')
 }
 
@@ -326,19 +514,60 @@ function onFullscreenChange() {
   isFullscreen.value = document.fullscreenElement === containerRef.value
 }
 
+function onDocumentPointerDown(event) {
+  if (!volumeControlRef.value?.contains(event.target)) showVolumeMenu.value = false
+}
+
+function onDocumentKeydown(event) {
+  if (event.key === 'Escape') {
+    showVolumeMenu.value = false
+    showRateMenu.value = false
+  }
+}
+
 watch(() => props.loop, value => { loopEnabled.value = value })
-watch(() => props.muted, value => { mutedState.value = value })
-watch(() => props.src, () => {
+watch(() => props.muted, value => {
+  mutedState.value = value
+  if (mediaRef.value) mediaRef.value.muted = value
+})
+watch(() => props.volume, value => {
+  volumeLevel.value = Math.max(0, Math.min(1, value))
+  if (volumeLevel.value > 0) lastAudibleVolume = volumeLevel.value
+  if (mediaRef.value) mediaRef.value.volume = volumeLevel.value
+})
+watch(() => props.playbackRate, value => {
+  playbackRateValue.value = value
+  if (mediaRef.value) mediaRef.value.playbackRate = value
+})
+watch(() => props.autoplay, value => {
+  if (value) mediaRef.value?.play().catch(error => emit('autoplayblocked', error))
+})
+watch(() => props.disableAnimations, value => {
+  internalAnimationsEnabled.value = !value
+})
+watch(() => props.src, async () => {
   currentTime.value = 0
   duration.value = 0
   buffered.value = 0
   isLoading.value = true
+  await nextTick()
+  mediaRef.value?.load()
 })
 
-onMounted(() => document.addEventListener('fullscreenchange', onFullscreenChange))
+onMounted(() => {
+  document.addEventListener('fullscreenchange', onFullscreenChange)
+  document.addEventListener('pointerdown', onDocumentPointerDown)
+  document.addEventListener('keydown', onDocumentKeydown)
+})
 onUnmounted(() => {
+  mediaRef.value?.pause()
   if (controlsTimer) clearTimeout(controlsTimer)
+  if (volumeCloseTimer) clearTimeout(volumeCloseTimer)
+  stopProgressAnimation()
+  if (seekFrame) cancelAnimationFrame(seekFrame)
   document.removeEventListener('fullscreenchange', onFullscreenChange)
+  document.removeEventListener('pointerdown', onDocumentPointerDown)
+  document.removeEventListener('keydown', onDocumentKeydown)
 })
 </script>
 
@@ -354,8 +583,14 @@ onUnmounted(() => {
   touch-action: manipulation;
 }
 
+.fluent-media-player.animations-disabled,
+.fluent-media-player.animations-disabled * {
+  transition: none !important;
+  animation: none !important;
+}
+
 .media-container { position: relative; width: 100%; }
-.media-element { display: block; width: 100%; max-height: 75vh; }
+.media-element { display: block; width: 100%; max-width: 100%; }
 .media-container:fullscreen { width: 100vw; height: 100vh; background: #000; }
 .media-container:fullscreen .media-element { width: 100vw; height: 100vh; max-height: none; }
 .fluent-media-player.is-audio { --media-control-color: var(--text-primary); border: 1px solid var(--border-strong); background: var(--bg-card-solid); box-shadow: var(--shadow-4); }
@@ -393,7 +628,7 @@ onUnmounted(() => {
 .progress-buffer, .progress-fill { position: absolute; top: 0; left: 0; height: 100%; }
 .progress-buffer { background: rgba(255,255,255,.24); }
 .is-audio .progress-buffer { background: var(--text-muted); opacity: .25; }
-.progress-fill { border-radius: 2px; background: var(--accent); }
+.progress-fill { width: 100%; border-radius: 2px; background: var(--accent); transform-origin: left center; will-change: transform; }
 .controls-bar, .controls-right, .volume-control { display: flex; align-items: center; }
 .controls-bar { gap: 8px; min-width: 0; }
 .controls-right { gap: 4px; }
@@ -409,11 +644,11 @@ onUnmounted(() => {
 .rate-options { display: grid; min-width: 72px; gap: 2px; }
 .rate-options button { min-height: 30px; padding: 0 10px; border: 0; border-radius: 4px; background: transparent; color: inherit; font: inherit; font-size: 12px; text-align: left; cursor: pointer; }
 .rate-options button:hover, .rate-options button.active { background: var(--accent); color: #fff; }
-.volume-popover { display: flex; align-items: center; gap: 6px; min-width: 154px; }
+.volume-popover { display: flex; align-items: center; gap: 8px; min-width: 166px; padding: 8px; }
 .popover-mute { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border: 0; border-radius: 4px; background: transparent; color: inherit; cursor: pointer; }
 .popover-mute:hover { background: rgba(255,255,255,.14); }
 .is-audio .popover-mute:hover { background: var(--bg-hover); }
-.volume-slider { width: 104px; accent-color: var(--accent); cursor: pointer; touch-action: none; }
+.volume-slider { flex: 1; width: 112px; height: 4px; accent-color: var(--accent); cursor: pointer; touch-action: none; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); }
 
 @media (pointer: coarse), (max-width: 640px) {
