@@ -89,31 +89,16 @@
         </template>
       </div>
       <footer class="navigation-dock__footer">
-        <div class="navigation-dock__theme-tools">
-          <button
-            type="button"
-            class="navigation-dock__item navigation-dock__theme-button"
-            :title="themeMode === 'dark' ? '切换到浅色' : themeMode === 'light' ? '跟随系统' : '切换到深色'"
-            :aria-label="themeMode === 'dark' ? '切换到浅色' : themeMode === 'light' ? '跟随系统' : '切换到深色'"
-            @click="cycleTheme"
-          >
-            <FluentIcon :icon="themeMode === 'dark' ? 'weather-sunny-20-regular' : 'weather-moon-20-regular'" :width="20" />
-            <span v-if="!dockCollapsed" class="navigation-dock__label">{{ themeModeLabel }}</span>
-          </button>
-          <button
-            type="button"
-            class="navigation-dock__preset"
-             :title="language === 'zh' ? '使用 Fluent 蓝色主题' : 'Use Fluent blue theme'"
-             :aria-label="language === 'zh' ? '使用 Fluent 蓝色主题' : 'Use Fluent blue theme'"
-            @click="emit('update:accent-color', '#0078d4')"
-          ></button>
-          <FluentColorPicker
-            v-model="localAccent"
-            :show-presets="true"
-             :aria-label="language === 'zh' ? '选择主题色' : 'Choose theme color'"
-            class="navigation-dock__color-picker"
-          />
-        </div>
+        <button
+          type="button"
+          class="navigation-dock__item navigation-dock__theme-button"
+          :title="themeMode === 'dark' ? '切换到浅色' : themeMode === 'light' ? '跟随系统' : '切换到深色'"
+          :aria-label="themeMode === 'dark' ? '切换到浅色' : themeMode === 'light' ? '跟随系统' : '切换到深色'"
+          @click="cycleTheme"
+        >
+          <FluentIcon :icon="themeMode === 'dark' ? 'weather-sunny-20-regular' : 'weather-moon-20-regular'" :width="20" />
+          <span v-if="!dockCollapsed" class="navigation-dock__label">{{ themeModeLabel }}</span>
+        </button>
         <button type="button" class="navigation-dock__item navigation-dock__language" :title="language === 'zh' ? '切换到 English' : 'Switch to 中文'" @click="toggleLanguage">
           <FluentIcon icon="globe-20-regular" :width="20" />
           <span v-if="!dockCollapsed" class="navigation-dock__label">{{ language === 'zh' ? '中文' : 'English' }}</span>
@@ -144,11 +129,10 @@ import { FluentAutoSuggestBox, FluentIcon, SecondarySidebarMenu } from 'vue-flue
 const props = defineProps({
   items: { type: Array, required: true },
   themeMode: { type: String, default: 'system' },
-  accentColor: { type: String, default: '#ea5ec1' },
   language: { type: String, default: 'zh' }
 })
 
-const emit = defineEmits(['update:theme-mode', 'update:accent-color', 'update:language'])
+const emit = defineEmits(['update:theme-mode', 'update:language'])
 
 const route = useRoute()
 const router = useRouter()
@@ -158,7 +142,6 @@ const isMobile = ref(false)
 const mobileOpen = ref(false)
 const activeSecondary = ref(null)
 const searchQuery = ref('')
-const localAccent = ref(props.accentColor)
 const language = computed(() => props.language)
 const dockCollapsed = computed(() => !isMobile.value && isCollapsed.value)
 const themeModeLabel = computed(() => (language.value === 'en'
@@ -228,9 +211,6 @@ const filterSearchItems = (query, suggestions) => {
   if (!normalized) return suggestions.slice(0, 12)
   return suggestions.filter(item => `${item.id} ${item.label} ${item.path}`.toLowerCase().includes(normalized)).slice(0, 12)
 }
-
-watch(() => props.accentColor, value => { localAccent.value = value })
-watch(localAccent, value => emit('update:accent-color', value))
 
 const cycleTheme = () => {
   const modes = ['system', 'light', 'dark']
@@ -550,22 +530,7 @@ onUnmounted(() => mobileQuery?.removeEventListener('change', updateMobile))
   border-top: 1px solid var(--border-subtle);
 }
 
-.navigation-dock__theme-tools {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  margin-bottom: 4px;
-}
-
-.navigation-dock__theme-button { flex: 1; min-width: 0; margin: 0; }
-.navigation-dock__preset { flex: 0 0 18px; width: 18px; height: 18px; padding: 0; border: 2px solid var(--bg-card-solid); border-radius: 50%; background: #0078d4; box-shadow: 0 0 0 1px var(--border-strong); cursor: pointer; }
-.navigation-dock__color-picker { flex: 0 0 26px; width: 26px; }
-.navigation-dock__color-picker :deep(.color-picker-container) { width: 26px; }
-.navigation-dock__color-picker :deep(.color-picker-input-wrapper) { width: 26px; }
-.navigation-dock__color-picker :deep(.color-input) { display: none; }
-.navigation-dock__color-picker :deep(.color-preview) { width: 22px; height: 22px; border: 2px solid var(--bg-card-solid); border-radius: 50%; box-shadow: 0 0 0 1px var(--border-strong); cursor: pointer; }
-.navigation-dock__color-picker :deep(.color-picker-dropdown) { right: 0; left: auto; }
-
+.navigation-dock__theme-button,
 .navigation-dock__language { margin: 0; }
 
 .navigation-dock.collapsed .navigation-dock__item {
