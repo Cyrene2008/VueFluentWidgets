@@ -6,7 +6,7 @@
           <img :src="asset('images/avatar.webp')" alt="Cyrene2008" class="footer-avatar" />
           <div class="footer-creator-info">
             <span class="footer-creator-name">Cyrene2008</span>
-            <span class="footer-role">独立开发者</span>
+            <span class="footer-role">{{ text('独立开发者', 'Independent developer') }}</span>
             <a href="https://github.com/Cyrene2008" target="_blank" rel="noopener noreferrer" class="footer-github">
               <FluentIcon icon="code-20-regular" :width="20" />
               <span>GitHub</span>
@@ -31,7 +31,7 @@
           <span>Made with Love, Starlight Ripples On♪</span>
           <a href="https://cyrene.hk" target="_blank" rel="noopener noreferrer" class="footer-org-site">
             <FluentIcon icon="code-20-regular" :width="20" />
-            <span>团队官网 cyrene.hk</span>
+             <span>{{ text('团队官网', 'Team website') }} cyrene.hk</span>
           </a>
         </div>
       </div>
@@ -47,8 +47,10 @@
 
 <script setup>
 import { FluentIcon } from 'vue-fluent-widgets'
+import { useDemoLocale } from '../composables/useDemoLocale.js'
 
 const asset = path => `${import.meta.env.BASE_URL}${path}`
+const { text } = useDemoLocale()
 </script>
 
 <style scoped>
@@ -56,7 +58,7 @@ const asset = path => `${import.meta.env.BASE_URL}${path}`
   background: var(--bg-card);
   border-top: 1px solid var(--border-strong);
   padding: 32px 40px;
-  margin-top: auto;
+  margin-top: 72px;
 }
 
 .footer-content {
