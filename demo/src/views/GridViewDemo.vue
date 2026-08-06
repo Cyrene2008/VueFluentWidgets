@@ -32,7 +32,7 @@
           <FluentGridView 
             :items="selectableItems" 
             :columns="3" 
-            selectable
+            selection-mode="multiple"
             v-model:selected-items="selectedItems"
           >
             <template #default="{ item }">
@@ -67,12 +67,12 @@ const items = [
 ]
 
 const selectableItems = [
-  { label: '项目 1', icon: 'heart-20-regular' },
-  { label: '项目 2', icon: 'star-20-regular' },
-  { label: '项目 3', icon: 'bookmark-20-regular' },
-  { label: '项目 4', icon: 'flag-20-regular' },
-  { label: '项目 5', icon: 'pin-20-regular' },
-  { label: '项目 6', icon: 'tag-20-regular' }
+  { id: 1, label: '项目 1', icon: 'heart-20-regular' },
+  { id: 2, label: '项目 2', icon: 'star-20-regular' },
+  { id: 3, label: '项目 3', icon: 'bookmark-20-regular' },
+  { id: 4, label: '项目 4', icon: 'flag-20-regular' },
+  { id: 5, label: '项目 5', icon: 'pin-20-regular' },
+  { id: 6, label: '项目 6', icon: 'tag-20-regular' }
 ]
 
 const selectedItems = ref([])
@@ -94,7 +94,7 @@ const items = [
 const selectableCode = `<FluentGridView 
   :items="items" 
   :columns="3" 
-  selectable
+  selection-mode="multiple"
   v-model:selected-items="selectedItems"
 >
   <template #default="{ item }">
