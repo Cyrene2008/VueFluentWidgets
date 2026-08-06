@@ -11,17 +11,21 @@
     @keydown.esc="goBack"
   >
     <header class="secondary-sidebar-menu__header">
-      <button v-if="collapsed" type="button" class="secondary-sidebar-menu__back" aria-label="展开 Dock" title="展开 Dock" @click="emit('toggle-collapse')">
+      <button type="button" class="secondary-sidebar-menu__back secondary-sidebar-menu__hamburger" aria-label="折叠或展开导航" title="折叠或展开导航" @click="emit('toggle-collapse')">
         <FluentIcon icon="line-horizontal-3-20-regular" :width="18" />
       </button>
-      <button v-if="collapsed" type="button" class="secondary-sidebar-menu__back" aria-label="返回上一个页面" title="返回上一个页面" @click="router.back()">
+      <button type="button" class="secondary-sidebar-menu__back secondary-sidebar-menu__history-back" aria-label="返回上一个页面" title="返回上一个页面" @click="goBackWithinApp">
         <FluentIcon icon="arrow-left-20-regular" :width="18" />
       </button>
-      <button type="button" class="secondary-sidebar-menu__back" :aria-label="backLabel" @click="goBack">
-        <FluentIcon :icon="collapsed ? 'panel-left-20-regular' : 'arrow-left-20-regular'" :width="18" />
-        <span class="secondary-sidebar-menu__back-label">{{ backLabel }}</span>
-      </button>
+      <div class="secondary-sidebar-menu__brand">
+        <img v-if="logoSrc && !collapsed" :src="logoSrc" alt="" />
+        <span v-if="!collapsed">{{ brandTitle }}</span>
+      </div>
     </header>
+    <button type="button" class="secondary-sidebar-menu__back secondary-sidebar-menu__main-back" :aria-label="backLabel" :title="backLabel" @click="goBack">
+      <FluentIcon icon="panel-left-20-regular" :width="18" />
+      <span class="secondary-sidebar-menu__back-label">{{ backLabel }}</span>
+    </button>
 
     <nav class="secondary-sidebar-menu__list">
       <template v-for="item in items" :key="item.id">
@@ -117,7 +121,9 @@ const props = defineProps({
   items: { type: Array, required: true },
   backLabel: { type: String, default: 'Back' },
   initialRoute: { type: [String, Object], default: null },
-  navigateOnOpen: { type: Boolean, default: false }
+  navigateOnOpen: { type: Boolean, default: false },
+  logoSrc: { type: String, default: '' },
+  brandTitle: { type: String, default: 'Vue Fluent Widgets' }
 })
 
 const emit = defineEmits(['back', 'toggle-collapse', 'navigate'])
@@ -126,6 +132,12 @@ const router = useRouter()
 const menuRef = ref(null)
 const panelVisible = ref(props.open)
 const expandedGroups = ref(new Set())
+
+const goBackWithinApp = () => {
+  const previous = window.history.state?.back
+  if (typeof previous === 'string' && previous.startsWith('/')) router.back()
+  else router.push('/')
+}
 
 const routePath = target => target ? router.resolve(target).path : ''
 
@@ -232,7 +244,7 @@ watch(() => route.path, () => {
   flex-direction: column;
   width: 100%;
   height: 100%;
-  padding: 12px 6px;
+  padding: 4px;
   overflow: hidden;
   background: var(--bg-acrylic);
   visibility: hidden;
@@ -251,16 +263,23 @@ watch(() => route.path, () => {
 }
 
 .secondary-sidebar-menu__header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
   flex: 0 0 auto;
-  padding: 0 4px 12px;
+  padding: 0 0 4px;
   border-bottom: 1px solid var(--border-subtle);
 }
 
+.secondary-sidebar-menu__brand { display: flex; min-width: 0; align-items: center; gap: 8px; color: var(--text-primary); font-size: 13px; font-weight: 600; }
+.secondary-sidebar-menu__brand img { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
 .secondary-sidebar-menu__back {
   display: flex;
   align-items: center;
   gap: 8px;
-  width: 100%;
+  flex: 0 0 36px;
+  justify-content: center;
+  width: 36px;
   min-height: 36px;
   padding: 6px 8px;
   border: 0;
@@ -269,6 +288,14 @@ watch(() => route.path, () => {
   color: var(--text-secondary);
   font: inherit;
   cursor: pointer;
+}
+
+.secondary-sidebar-menu__back.secondary-sidebar-menu__main-back {
+  flex: 0 0 36px;
+  justify-content: flex-start;
+  width: 100%;
+  max-width: 100%;
+  margin: 4px 0 0;
 }
 
 .secondary-sidebar-menu__back:hover {
@@ -286,7 +313,7 @@ watch(() => route.path, () => {
   flex-direction: column;
   gap: 4px;
   min-height: 0;
-  padding: 10px 0;
+  padding: 6px 0;
   overflow-x: hidden;
   overflow-y: auto;
 }
@@ -378,6 +405,8 @@ watch(() => route.path, () => {
 .secondary-sidebar-menu.is-collapsed .secondary-sidebar-menu__item-label {
   display: none;
 }
+
+.secondary-sidebar-menu.is-collapsed .secondary-sidebar-menu__brand span { display: none; }
 
 .secondary-sidebar-menu.is-collapsed .secondary-sidebar-menu__chevron {
   display: none;
