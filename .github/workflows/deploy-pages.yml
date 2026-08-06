@@ -46,6 +46,9 @@ jobs:
         env:
           VITE_BASE_PATH: ${{ steps.pages.outputs.base_path }}
 
+      - name: Prepare SPA fallback
+        run: cp demo/dist/index.html demo/dist/404.html
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
