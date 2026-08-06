@@ -13,10 +13,17 @@
         <div class="demo-column">
           <FluentFlipView v-model="currentIndex" :items="items" style="height: 300px;">
             <template #default="{ item }">
-              <div class="flip-item" :style="{ background: item.color }">
-                <h3>{{ item.title }}</h3>
-                <p>{{ item.description }}</p>
-              </div>
+              <article class="flip-item">
+                <img v-if="item.kind === 'image'" :src="item.src" :alt="item.title" />
+                <video v-else-if="item.kind === 'video'" :src="item.src" :poster="item.poster" controls muted preload="metadata" />
+                <div v-else class="flip-content">
+                  <FluentIcon icon="apps-list-detail-20-regular" :width="34" />
+                  <h3>{{ item.title }}</h3>
+                  <p>{{ item.description }}</p>
+                  <FluentButton size="sm">执行自定义操作</FluentButton>
+                </div>
+                <div v-if="item.kind !== 'content'" class="flip-caption"><strong>{{ item.title }}</strong><span>{{ item.description }}</span></div>
+              </article>
             </template>
           </FluentFlipView>
           <div class="demo-info">
@@ -34,9 +41,12 @@
         <div class="demo-column">
           <FluentFlipView v-model="verticalIndex" :items="items" vertical style="height: 300px;">
             <template #default="{ item }">
-              <div class="flip-item" :style="{ background: item.color }">
+              <div class="flip-item">
+                <div class="flip-content">
+                  <FluentIcon icon="arrow-sort-20-regular" :width="30" />
                 <h3>{{ item.title }}</h3>
                 <p>{{ item.description }}</p>
+                </div>
               </div>
             </template>
           </FluentFlipView>
@@ -48,31 +58,31 @@
 
 <script setup>
 import { ref } from 'vue'
-import { FluentFlipView, FluentControlExample } from 'vue-fluent-widgets'
+import { FluentButton, FluentFlipView, FluentIcon, FluentControlExample } from 'vue-fluent-widgets'
 
 const currentIndex = ref(0)
 const verticalIndex = ref(0)
+const asset = path => `${import.meta.env.BASE_URL}${path}`
 
 const items = [
-  { title: '项目 1', description: '这是第一个项目', color: '#0078d4' },
-  { title: '项目 2', description: '这是第二个项目', color: '#107c10' },
-  { title: '项目 3', description: '这是第三个项目', color: '#d83b01' },
-  { title: '项目 4', description: '这是第四个项目', color: '#b4009e' }
+  { kind: 'image', title: '图片内容', description: 'slot 中放置响应式图片', src: asset('images/Cyrene01.webp') },
+  { kind: 'video', title: '视频内容', description: 'slot 中放置视频或媒体组件', src: asset('loop.mp4'), poster: asset('images/Cyrene02.webp') },
+  { kind: 'content', title: '业务内容', description: '按钮、表单、图表和其他 Vue 组件都可以组合' }
 ]
 
 const basicCode = `<FluentFlipView v-model="currentIndex" :items="items" style="height: 300px;">
   <template #default="{ item }">
-    <div class="flip-item" :style="{ background: item.color }">
-      <h3>{{ item.title }}</h3>
-      <p>{{ item.description }}</p>
-    </div>
+    <img v-if="item.kind === 'image'" :src="item.src" :alt="item.title" />
+    <video v-else-if="item.kind === 'video'" :src="item.src" controls />
+    <YourBusinessCard v-else :item="item" />
   </template>
 </FluentFlipView>
 
 const currentIndex = ref(0)
 const items = [
-  { title: '项目 1', description: '这是第一个项目', color: '#0078d4' },
-  { title: '项目 2', description: '这是第二个项目', color: '#107c10' }
+  { kind: 'image', src: '/images/example.webp' },
+  { kind: 'video', src: '/media/example.mp4' },
+  { kind: 'content', title: '自己的业务组件' }
 ]`
 
 const verticalCode = `<FluentFlipView v-model="currentIndex" :items="items" vertical style="height: 300px;">
@@ -113,26 +123,59 @@ const verticalCode = `<FluentFlipView v-model="currentIndex" :items="items" vert
 }
 
 .flip-item {
+  position: relative;
   width: 100%;
   height: 100%;
+  overflow: hidden;
+  background: var(--bg-card-solid);
+}
+
+.flip-item > img,
+.flip-item > video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.flip-content {
   display: flex;
+  width: 100%;
+  height: 100%;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: white;
+  gap: 10px;
+  color: var(--text-primary);
   padding: 24px;
   text-align: center;
 }
 
-.flip-item h3 {
+.flip-content h3 {
   font-size: 24px;
-  margin-bottom: 8px;
+  margin: 0;
 }
 
-.flip-item p {
+.flip-content p {
   font-size: 16px;
+  color: var(--text-secondary);
   opacity: 0.9;
 }
+
+.flip-caption {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 30px 16px 14px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, .74));
+  color: #fff;
+}
+
+.flip-caption span { font-size: 12px; opacity: .82; }
 
 .demo-info {
   padding: 12px;
