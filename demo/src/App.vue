@@ -3,10 +3,8 @@
     <NavigationDock
       :items="navItems"
       :theme-mode="themeMode"
-      :accent-color="accentColor"
       :language="language"
       @update:theme-mode="setThemeMode"
-      @update:accent-color="setAccentColor"
       @update:language="setLanguage"
     />
     <div class="demo-main">
@@ -57,7 +55,6 @@ import { provideDemoLocale } from './composables/useDemoLocale.js'
 import { providePersistentMedia } from './composables/usePersistentMedia.js'
 
 const themeMode = ref('light')
-const accentColor = ref('#ea5ec1')
 const language = ref(localStorage.getItem('demo-language') === 'en' ? 'en' : 'zh')
 provideDemoLocale(language)
 const activeMedia = ref(null)
@@ -88,24 +85,14 @@ const applyTheme = () => {
   const root = document.documentElement
   root.classList.toggle('theme-dark', isDark.value)
   root.classList.toggle('theme-light', !isDark.value)
-  root.style.setProperty('--fluent-accent', accentColor.value)
-  root.style.setProperty('--text-on-accent', textOnAccent(accentColor.value))
-}
-
-const textOnAccent = hex => {
-  const channels = hex.slice(1).match(/.{2}/g).map(value => parseInt(value, 16) / 255)
-  const linear = channels.map(value => value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4)
-  const luminance = linear[0] * 0.2126 + linear[1] * 0.7152 + linear[2] * 0.0722
-  const whiteContrast = 1.05 / (luminance + 0.05)
-  const blackContrast = (luminance + 0.05) / 0.05
-  return whiteContrast >= blackContrast ? '#ffffff' : '#111111'
+  root.style.setProperty('--fluent-accent', '#ea5ec1')
+  root.style.setProperty('--text-on-accent', '#ffffff')
 }
 
 const setThemeMode = mode => { themeMode.value = mode }
-const setAccentColor = color => { if (/^#[\da-f]{6}$/i.test(color)) accentColor.value = color }
 const setLanguage = value => { language.value = value === 'en' ? 'en' : 'zh' }
 
-watch([themeMode, accentColor, isDark], applyTheme)
+watch([themeMode, isDark], applyTheme)
 watch(language, value => {
   localStorage.setItem('demo-language', value)
   document.documentElement.lang = value === 'en' ? 'en' : 'zh-CN'
@@ -249,44 +236,45 @@ body {
   --accent-hover: color-mix(in srgb, var(--accent), black 12%);
   --accent-200: color-mix(in srgb, var(--accent), white 72%);
   --accent-50: color-mix(in srgb, var(--accent), white 92%);
+  --text-on-accent: #ffffff;
 }
 
 :root.theme-light,
 .demo-app.theme-light {
-  --bg-base: #f3f3f3;
-  --bg-card: rgba(255, 255, 255, .72);
-  --bg-card-solid: #ffffff;
-  --bg-hover: rgba(0, 0, 0, .045);
-  --bg-acrylic: rgba(252, 252, 252, .8);
-  --bg-mica: linear-gradient(135deg, #f4f4f4, #ececec);
-  --bg-mica-alt: linear-gradient(135deg, #eeeeee, #e6e6e6);
-  --bg-code: #f5f5f5;
-  --text-primary: #1b1b1b;
-  --text-secondary: #424242;
-  --text-muted: #707070;
-  --text-code: #1b1b1b;
-  --border-default: rgba(0, 0, 0, .08);
-  --border-subtle: rgba(0, 0, 0, .055);
-  --border-strong: rgba(0, 0, 0, .14);
+  --bg-base: #fdf5fa;
+  --bg-card: rgba(255, 245, 252, .75);
+  --bg-card-solid: #fff8fc;
+  --bg-hover: #fdf0f6;
+  --bg-acrylic: rgba(255, 240, 248, .82);
+  --bg-mica: linear-gradient(135deg, rgba(255, 240, 248, .97), rgba(253, 245, 250, .97));
+  --bg-mica-alt: linear-gradient(135deg, #f9eaf3, #f6e0ed);
+  --bg-code: #f8f3f6;
+  --text-primary: #3d1a2e;
+  --text-secondary: #6b3a55;
+  --text-muted: #a16d88;
+  --text-code: #3d1a2e;
+  --border-default: rgba(234, 94, 193, .1);
+  --border-subtle: rgba(234, 94, 193, .06);
+  --border-strong: rgba(234, 94, 193, .2);
 }
 
 :root.theme-dark,
 .demo-app.theme-dark {
-  --bg-base: #202020;
-  --bg-card: rgba(45, 45, 45, .78);
-  --bg-card-solid: #2b2b2b;
-  --bg-hover: #323232;
-  --bg-acrylic: rgba(32, 32, 32, .86);
-  --bg-mica: linear-gradient(135deg, #272727, #202020);
-  --bg-mica-alt: linear-gradient(135deg, #303030, #252525);
-  --bg-code: #171717;
-  --text-primary: #ffffff;
-  --text-secondary: #d6d6d6;
-  --text-muted: #a0a0a0;
-  --text-code: #f2f2f2;
-  --border-default: #444444;
-  --border-subtle: rgba(255, 255, 255, .07);
-  --border-strong: rgba(255, 255, 255, .16);
+  --bg-base: #2d1a25;
+  --bg-card: rgba(50, 30, 42, .75);
+  --bg-card-solid: #3a2232;
+  --bg-hover: #4a2a3e;
+  --bg-acrylic: rgba(40, 22, 35, .82);
+  --bg-mica: linear-gradient(135deg, rgba(40, 22, 35, .95), rgba(30, 15, 25, .95));
+  --bg-mica-alt: linear-gradient(135deg, #402535, #321d2a);
+  --bg-code: #24131e;
+  --text-primary: #fce4f0;
+  --text-secondary: #d4a0bc;
+  --text-muted: #a87590;
+  --text-code: #f7dce9;
+  --border-default: rgba(234, 94, 193, .15);
+  --border-subtle: rgba(234, 94, 193, .08);
+  --border-strong: rgba(234, 94, 193, .25);
 }
 
 .demo-main {
