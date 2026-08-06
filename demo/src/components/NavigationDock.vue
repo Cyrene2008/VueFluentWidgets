@@ -35,6 +35,31 @@
         <span v-if="!dockCollapsed" class="navigation-dock__title">Vue Fluent Widgets</span>
       </header>
 
+      <div v-if="!dockCollapsed" class="navigation-dock__search">
+        <FluentAutoSuggestBox
+          v-model="searchQuery"
+          :suggestions="searchItems"
+          :filter-method="filterSearchItems"
+           :placeholder="language === 'zh' ? '搜索组件或文档' : 'Search components or docs'"
+          icon="search-20-regular"
+          value-key="label"
+          @select="navigateToSearchResult"
+        >
+          <template #suggestion="{ suggestion }">
+            <div class="navigation-dock__search-result">
+              <FluentIcon v-if="suggestion.icon" :icon="suggestion.icon" :width="16" />
+              <span>
+                <strong>{{ suggestion.label }}</strong>
+                <small>{{ suggestion.path }}</small>
+              </span>
+            </div>
+          </template>
+        </FluentAutoSuggestBox>
+      </div>
+      <button v-else type="button" class="navigation-dock__collapsed-search" aria-label="展开搜索" title="展开搜索" @click="isCollapsed = false">
+        <FluentIcon icon="search-20-regular" :width="20" />
+      </button>
+
       <div class="navigation-dock__items">
         <template v-for="item in items" :key="item.id">
           <router-link
@@ -64,6 +89,31 @@
         </template>
       </div>
       <footer class="navigation-dock__footer">
+        <div class="navigation-dock__theme-tools">
+          <button
+            type="button"
+            class="navigation-dock__item navigation-dock__theme-button"
+            :title="themeMode === 'dark' ? '切换到浅色' : themeMode === 'light' ? '跟随系统' : '切换到深色'"
+            :aria-label="themeMode === 'dark' ? '切换到浅色' : themeMode === 'light' ? '跟随系统' : '切换到深色'"
+            @click="cycleTheme"
+          >
+            <FluentIcon :icon="themeMode === 'dark' ? 'weather-sunny-20-regular' : 'weather-moon-20-regular'" :width="20" />
+            <span v-if="!dockCollapsed" class="navigation-dock__label">{{ themeModeLabel }}</span>
+          </button>
+          <button
+            type="button"
+            class="navigation-dock__preset"
+             :title="language === 'zh' ? '使用 Fluent 蓝色主题' : 'Use Fluent blue theme'"
+             :aria-label="language === 'zh' ? '使用 Fluent 蓝色主题' : 'Use Fluent blue theme'"
+            @click="emit('update:accent-color', '#0078d4')"
+          ></button>
+          <FluentColorPicker
+            v-model="localAccent"
+            :show-presets="true"
+             :aria-label="language === 'zh' ? '选择主题色' : 'Choose theme color'"
+            class="navigation-dock__color-picker"
+          />
+        </div>
         <button type="button" class="navigation-dock__item navigation-dock__language" :title="language === 'zh' ? '切换到 English' : 'Switch to 中文'" @click="toggleLanguage">
           <FluentIcon icon="globe-20-regular" :width="20" />
           <span v-if="!dockCollapsed" class="navigation-dock__label">{{ language === 'zh' ? '中文' : 'English' }}</span>
@@ -76,9 +126,11 @@
       :collapsed="dockCollapsed"
       :items="secondaryItems"
       navigate-on-open
-      :back-label="language === 'zh' ? '返回一级菜单' : 'Back to main menu'"
+       :back-label="language === 'zh' ? '返回主菜单' : 'Back to main menu'"
+      :logo-src="asset('images/avatar.webp')"
+      brand-title="Vue Fluent Widgets"
       @back="closeSecondary"
-      @toggle-collapse="isCollapsed = false"
+      @toggle-collapse="toggleDock"
       @navigate="onSecondaryNavigate"
     />
   </nav>
@@ -87,11 +139,16 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { FluentIcon, SecondarySidebarMenu } from 'vue-fluent-widgets'
+import { FluentAutoSuggestBox, FluentIcon, SecondarySidebarMenu } from 'vue-fluent-widgets'
 
 const props = defineProps({
-  items: { type: Array, required: true }
+  items: { type: Array, required: true },
+  themeMode: { type: String, default: 'system' },
+  accentColor: { type: String, default: '#ea5ec1' },
+  language: { type: String, default: 'zh' }
 })
+
+const emit = defineEmits(['update:theme-mode', 'update:accent-color', 'update:language'])
 
 const route = useRoute()
 const router = useRouter()
@@ -100,8 +157,13 @@ const isCollapsed = ref(false)
 const isMobile = ref(false)
 const mobileOpen = ref(false)
 const activeSecondary = ref(null)
-const language = ref(localStorage.getItem('demo-language') === 'en' ? 'en' : 'zh')
+const searchQuery = ref('')
+const localAccent = ref(props.accentColor)
+const language = computed(() => props.language)
 const dockCollapsed = computed(() => !isMobile.value && isCollapsed.value)
+const themeModeLabel = computed(() => (language.value === 'en'
+  ? ({ system: 'System', light: 'Light', dark: 'Dark' }[props.themeMode] || 'Theme')
+  : ({ system: '跟随系统', light: '浅色', dark: '深色' }[props.themeMode] || '主题')))
 let mobileQuery
 const updateMobile = event => {
   isMobile.value = event.matches
@@ -110,6 +172,11 @@ const updateMobile = event => {
 
 const englishLabels = {
   home: 'Home',
+  docs: 'Documentation',
+  'getting-started': 'Getting started',
+  components: 'Components',
+  composition: 'Composition',
+  playground: 'Playground',
   'basic-input': 'Basic input',
   layout: 'Layout',
   feedback: 'Feedback',
@@ -124,7 +191,10 @@ const englishLabels = {
   material: 'Materials',
   typography: 'Typography',
   transitions: 'Transitions',
-  gestures: 'Gestures'
+  gestures: 'Gestures',
+  'control-primitives': 'Extended controls',
+  'content-states': 'Content states',
+  'interaction-patterns': 'Interactions'
 }
 
 const localizedLabel = item => {
@@ -141,6 +211,39 @@ const localizeItems = items => items.map(item => ({
   label: localizedLabel(item),
   children: item.children ? localizeItems(item.children) : undefined
 }))
+
+const flattenSearchItems = (entries, parents = []) => entries.flatMap(item => {
+  const nextParents = [...parents, localizedLabel(item)]
+  const current = item.to ? [{
+    ...item,
+    label: localizedLabel(item),
+    path: nextParents.slice(0, -1).join(' / ') || '首页'
+  }] : []
+  return [...current, ...(item.children ? flattenSearchItems(item.children, nextParents) : [])]
+})
+
+const searchItems = computed(() => flattenSearchItems(props.items))
+const filterSearchItems = (query, suggestions) => {
+  const normalized = query.trim().toLowerCase()
+  if (!normalized) return suggestions.slice(0, 12)
+  return suggestions.filter(item => `${item.id} ${item.label} ${item.path}`.toLowerCase().includes(normalized)).slice(0, 12)
+}
+
+watch(() => props.accentColor, value => { localAccent.value = value })
+watch(localAccent, value => emit('update:accent-color', value))
+
+const cycleTheme = () => {
+  const modes = ['system', 'light', 'dark']
+  const next = modes[(modes.indexOf(props.themeMode) + 1) % modes.length]
+  emit('update:theme-mode', next)
+}
+
+const navigateToSearchResult = item => {
+  if (!item?.to) return
+  searchQuery.value = ''
+  router.push(item.to)
+  onSecondaryNavigate()
+}
 
 const secondaryItems = computed(() => {
   const item = props.items.find(entry => entry.id === activeSecondary.value)
@@ -183,8 +286,7 @@ const onSecondaryNavigate = () => {
 }
 
 const toggleLanguage = () => {
-  language.value = language.value === 'zh' ? 'en' : 'zh'
-  localStorage.setItem('demo-language', language.value)
+  emit('update:language', language.value === 'zh' ? 'en' : 'zh')
 }
 
 watch(() => route.path, path => {
@@ -247,6 +349,70 @@ onUnmounted(() => mobileQuery?.removeEventListener('change', updateMobile))
   padding: 10px 12px;
   overflow: hidden;
   border-bottom: 1px solid var(--border-subtle);
+}
+
+.navigation-dock__search {
+  position: relative;
+  z-index: 8;
+  padding: 8px 10px 4px;
+}
+
+.navigation-dock__collapsed-search {
+  display: inline-flex;
+  flex: 0 0 40px;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  margin: 4px 8px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.navigation-dock__collapsed-search:hover {
+  background: var(--bg-hover);
+  color: var(--accent);
+}
+
+.navigation-dock__search :deep(.auto-suggest-input) {
+  height: 34px;
+  font-size: 12px;
+}
+
+.navigation-dock__search-result {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+  padding: 2px 0;
+}
+
+.navigation-dock__search-result > span {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.navigation-dock__search-result strong {
+  overflow: hidden;
+  color: var(--text-primary);
+  font-size: 12px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.navigation-dock__search-result small {
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .navigation-dock__toggle {
@@ -383,6 +549,22 @@ onUnmounted(() => mobileQuery?.removeEventListener('change', updateMobile))
   padding: 8px 6px;
   border-top: 1px solid var(--border-subtle);
 }
+
+.navigation-dock__theme-tools {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.navigation-dock__theme-button { flex: 1; min-width: 0; margin: 0; }
+.navigation-dock__preset { flex: 0 0 18px; width: 18px; height: 18px; padding: 0; border: 2px solid var(--bg-card-solid); border-radius: 50%; background: #0078d4; box-shadow: 0 0 0 1px var(--border-strong); cursor: pointer; }
+.navigation-dock__color-picker { flex: 0 0 26px; width: 26px; }
+.navigation-dock__color-picker :deep(.color-picker-container) { width: 26px; }
+.navigation-dock__color-picker :deep(.color-picker-input-wrapper) { width: 26px; }
+.navigation-dock__color-picker :deep(.color-input) { display: none; }
+.navigation-dock__color-picker :deep(.color-preview) { width: 22px; height: 22px; border: 2px solid var(--bg-card-solid); border-radius: 50%; box-shadow: 0 0 0 1px var(--border-strong); cursor: pointer; }
+.navigation-dock__color-picker :deep(.color-picker-dropdown) { right: 0; left: auto; }
 
 .navigation-dock__language { margin: 0; }
 
