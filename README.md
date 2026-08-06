@@ -58,11 +58,33 @@ createApp(App).use(VueFluentWidgets).mount('#app')
   title="Track title"
   artist="Artist"
   loop
+  show-minimize
+  @minimize="continuePlaying"
 />
 
 ```
 
-常用属性包括 `volume`、`playback-rate`、`show-loop`、`show-playback-rate`、`show-picture-in-picture` 和 `fit`。
+常用属性包括 `volume`、`playback-rate`、`show-loop`、`show-playback-rate`、`show-picture-in-picture`、`show-minimize` 和 `fit`。`minimize` 事件会提供当前进度、播放状态、音量与倍速等状态，供应用级常驻播放器无缝接管。
+
+组件不内置 GSAP，但为外部动画库提供了 `el`、`contentEl`、`pauseInternalAnimation()` 和 `resumeInternalAnimation()` 实例接口。需要完全由 GSAP 接管时，可使用 `disable-animations` 或调用 `pauseInternalAnimation()`：
+
+```vue
+<script setup>
+import { onMounted, ref } from 'vue'
+import { FluentMediaPlayer } from 'vue-fluent-widgets'
+import gsap from 'gsap'
+
+const player = ref()
+onMounted(() => {
+  player.value.pauseInternalAnimation()
+  gsap.from(player.value.contentEl, { opacity: 0, y: 24, duration: 0.6, ease: 'power3.out' })
+})
+</script>
+
+<template>
+  <FluentMediaPlayer ref="player" src="/music.mp3" type="audio" />
+</template>
+```
 
 ## ⚖️ 许可证与署名
 
