@@ -62,8 +62,7 @@ const { text } = useDemoLocale()
 }
 
 .footer-content {
-  max-width: 1200px;
-  margin: 0 auto;
+  width: 100%;
   display: grid;
   gap: 24px;
 }
