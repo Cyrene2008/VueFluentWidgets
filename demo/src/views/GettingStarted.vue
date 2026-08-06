@@ -8,7 +8,6 @@
     <section class="docs-section">
       <h2>1. {{ text('安装', 'Install') }}</h2>
       <pre><code>npm i vue-fluent-widgets</code></pre>
-      <p>{{ text('这是 npmjs 上的无 scope 包名。GitHub Packages 是另一套 registry，名称为', 'This is the unscoped npmjs package. The separate GitHub Packages registry uses') }} <code>@cyrene2008/vue-fluent-widgets</code>.</p>
     </section>
 
     <section class="docs-section">
