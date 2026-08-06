@@ -79,7 +79,9 @@ const getItemKey = (item, index) => {
 const isSelected = (item) => {
   return props.selectedItems.some(selected => {
     if (typeof item === 'object' && typeof selected === 'object') {
-      return item[props.itemKey] === selected[props.itemKey]
+      const itemKey = item[props.itemKey]
+      const selectedKey = selected[props.itemKey]
+      return itemKey != null && selectedKey != null ? itemKey === selectedKey : item === selected
     }
     return item === selected
   })
@@ -95,7 +97,9 @@ const onItemClick = (item, index) => {
     const newSelected = [...props.selectedItems]
     const existingIndex = newSelected.findIndex(s => {
       if (typeof item === 'object' && typeof s === 'object') {
-        return item[props.itemKey] === s[props.itemKey]
+        const itemKey = item[props.itemKey]
+        const selectedKey = s[props.itemKey]
+        return itemKey != null && selectedKey != null ? itemKey === selectedKey : item === s
       }
       return item === s
     })
@@ -119,7 +123,9 @@ const onCheckboxChange = (checked, item) => {
   const newSelected = [...props.selectedItems]
   const existingIndex = newSelected.findIndex(s => {
     if (typeof item === 'object' && typeof s === 'object') {
-      return item[props.itemKey] === s[props.itemKey]
+      const itemKey = item[props.itemKey]
+      const selectedKey = s[props.itemKey]
+      return itemKey != null && selectedKey != null ? itemKey === selectedKey : item === s
     }
     return item === s
   })
