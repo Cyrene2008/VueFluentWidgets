@@ -3,7 +3,8 @@
     <div v-if="label" class="color-picker-label">{{ label }}</div>
     <div class="color-picker-container">
       <div class="color-picker-input-wrapper">
-        <div 
+        <div
+          ref="previewRef"
           class="color-preview" 
           :style="{ background: modelValue }"
           @click="togglePicker"
@@ -19,7 +20,8 @@
       </div>
       
       <Transition name="dropdown">
-        <div v-if="isOpen" class="color-picker-dropdown">
+        <Teleport to="body">
+        <div v-if="isOpen" ref="dropdownRef" class="color-picker-dropdown" :style="dropdownStyle">
           <div class="color-spectrum" @pointerdown="onSpectrumDown">
             <canvas ref="spectrumRef" class="spectrum-canvas" width="256" height="150"></canvas>
             <div class="spectrum-thumb" :style="spectrumThumbStyle"></div>
@@ -73,6 +75,7 @@
             ></div>
           </div>
         </div>
+        </Teleport>
       </Transition>
     </div>
     <div v-if="error" class="color-picker-error">{{ error }}</div>
@@ -95,7 +98,10 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue', 'change'])
 
 const spectrumRef = ref(null)
+const previewRef = ref(null)
+const dropdownRef = ref(null)
 const isOpen = ref(false)
+const dropdownStyle = ref({})
 const hue = ref(0)
 const alpha = ref(100)
 const isDragging = ref(false)
@@ -201,6 +207,22 @@ const togglePicker = () => {
   isOpen.value = !isOpen.value
 }
 
+const updateDropdownPosition = () => {
+  const trigger = previewRef.value?.getBoundingClientRect()
+  const dropdown = dropdownRef.value
+  if (!trigger || !dropdown) return
+  const margin = 8
+  const width = Math.min(dropdown.offsetWidth || 304, window.innerWidth - margin * 2)
+  const height = dropdown.offsetHeight || 430
+  const below = window.innerHeight - trigger.bottom - margin
+  const above = trigger.top - margin
+  const top = below >= height || below >= above
+    ? Math.min(window.innerHeight - height - margin, trigger.bottom + 4)
+    : Math.max(margin, trigger.top - height - 4)
+  const left = Math.max(margin, Math.min(trigger.left, window.innerWidth - width - margin))
+  dropdownStyle.value = { top: `${top}px`, left: `${left}px`, maxWidth: `calc(100vw - ${margin * 2}px)` }
+}
+
 const onInputChange = (event) => {
   const value = event.target.value
   if (/^#[0-9a-fA-F]{6}$/.test(value)) {
@@ -302,7 +324,7 @@ const selectPreset = (color) => {
 }
 
 const onClickOutside = (event) => {
-  if (!event.target.closest('.fluent-color-picker')) {
+  if (!event.target.closest('.fluent-color-picker') && !dropdownRef.value?.contains(event.target)) {
     isOpen.value = false
   }
 }
@@ -311,6 +333,7 @@ watch(isOpen, async open => {
   if (!open) return
   await nextTick()
   drawSpectrum()
+  updateDropdownPosition()
 })
 
 watch(() => props.modelValue, value => {
@@ -326,12 +349,16 @@ onMounted(() => {
   drawSpectrum()
   document.addEventListener('pointermove', onDragMove)
   document.addEventListener('pointerup', onSpectrumUp)
+  window.addEventListener('resize', updateDropdownPosition)
+  window.addEventListener('scroll', updateDropdownPosition, true)
 })
 
 onUnmounted(() => {
   document.removeEventListener('click', onClickOutside)
   document.removeEventListener('pointermove', onDragMove)
   document.removeEventListener('pointerup', onSpectrumUp)
+  window.removeEventListener('resize', updateDropdownPosition)
+  window.removeEventListener('scroll', updateDropdownPosition, true)
 })
 </script>
 
@@ -395,17 +422,21 @@ onUnmounted(() => {
 }
 
 .color-picker-dropdown {
-  position: absolute;
-  top: 100%;
+  position: fixed;
+  top: 0;
   left: 0;
-  z-index: 1000;
+  z-index: 100000;
   margin-top: 4px;
   background: var(--bg-card);
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-md);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.14);
   padding: 12px;
-  min-width: 280px;
+  width: min(304px, calc(100vw - 16px));
+  min-width: 0;
+  box-sizing: border-box;
+  max-height: min(520px, calc(100vh - 16px));
+  overflow-y: auto;
 }
 
 .color-spectrum {
