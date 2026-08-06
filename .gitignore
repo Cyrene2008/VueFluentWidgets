@@ -6,6 +6,9 @@ node_modules/
 dist/
 packages/*/dist/
 demo/dist/
+coverage/
+playwright-report/
+test-results/
 
 # IDE
 .vscode/
@@ -32,6 +35,10 @@ pnpm-debug.log*
 # Cache
 .cache/
 .temp/
+.vite/
+**/.vite/
+.eslintcache
+.stylelintcache
 *.tsbuildinfo
 
 # Tauri
@@ -40,6 +47,8 @@ src-tauri/target/
 # Temporary files
 *.tmp
 *.temp
+*.tgz
+npm-pack-*.json
 
 # Lock files (optional, keep pnpm-lock.yaml)
 # package-lock.json
