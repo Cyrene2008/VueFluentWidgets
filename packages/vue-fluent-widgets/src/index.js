@@ -104,10 +104,10 @@ import FluentWatermark from './components/FluentWatermark.vue'
 import FullscreenToggle from './components/FullscreenToggle.vue'
 import SecondarySidebarMenu from './components/SecondarySidebarMenu.vue'
 import SplashScreen from './components/SplashScreen.vue'
+import { MaterialPresets, getMaterialStyles } from './utils/material'
 
 import './styles/variables.css'
 import './styles/global.css'
-import './styles/fonts.css'
 
 export {
   FluentAnimatedIcon,
@@ -214,12 +214,13 @@ export {
   FluentViewbox,
   FluentWatermark,
   FullscreenToggle,
+  MaterialPresets,
+  getMaterialStyles,
   SecondarySidebarMenu,
   SplashScreen
 }
 
-export default {
-  install(app) {
+export const install = app => {
     if (import.meta.env.DEV) {
       console.info(
         'Vue Fluent Widgets © 2026 Cyrene2008 | MIT License\n' +
@@ -334,5 +335,6 @@ export default {
     app.component('FullscreenToggle', FullscreenToggle)
     app.component('SecondarySidebarMenu', SecondarySidebarMenu)
     app.component('SplashScreen', SplashScreen)
-  }
 }
+
+export default { install }
