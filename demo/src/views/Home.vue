@@ -7,12 +7,15 @@
       </p>
       <div class="hero-actions">
         <FluentButton variant="primary" size="lg" @click="openRepository">
+          <FluentIcon icon="code-20-regular" :width="20" />
           {{ text('查看 GitHub 仓库', 'View on GitHub') }}
         </FluentButton>
         <FluentButton variant="secondary" size="lg" @click="$router.push('/button')">
+          <FluentIcon icon="apps-list-20-regular" :width="20" />
           {{ text('浏览组件', 'Browse components') }}
         </FluentButton>
         <FluentButton variant="subtle" size="lg" @click="$router.push('/docs/getting-started')">
+          <FluentIcon icon="book-open-20-regular" :width="20" />
           {{ text('查看使用文档', 'Read the docs') }}
         </FluentButton>
       </div>
