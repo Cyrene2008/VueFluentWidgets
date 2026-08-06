@@ -1,6 +1,6 @@
 <template>
   <label class="fluent-toggle" :class="{ checked: modelValue, disabled }">
-    <span v-if="label" class="toggle-label">{{ label }}</span>
+    <span v-if="label || $slots.label" class="toggle-label"><slot name="label">{{ label }}</slot></span>
     <input
       type="checkbox"
       :checked="modelValue"
