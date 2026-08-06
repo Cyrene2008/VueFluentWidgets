@@ -8,6 +8,8 @@
     "dev": "pnpm -C demo dev",
     "build": "pnpm -C packages/vue-fluent-widgets build",
     "build:demo": "pnpm -C demo build",
+    "docs:generate": "node scripts/generate-component-api.mjs",
+    "docs:check": "node scripts/generate-component-api.mjs --check",
     "preview": "pnpm -C demo preview",
     "test": "echo \"No tests specified\" && exit 0"
   },
@@ -16,5 +18,10 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "packageManager": "pnpm@9.0.0"
+  "packageManager": "pnpm@9.0.0",
+  "devDependencies": {
+    "@babel/parser": "^7.28.0",
+    "@vue/compiler-dom": "^3.5.0",
+    "@vue/compiler-sfc": "^3.5.0"
+  }
 }
