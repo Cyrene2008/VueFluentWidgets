@@ -75,6 +75,7 @@ const routes = [
   { path: '/fullscreen', component: () => import('./views/FullscreenDemo.vue') },
   { path: '/sidebar', component: () => import('./views/SidebarDemo.vue') },
   { path: '/splash', component: () => import('./views/SplashDemo.vue') },
+  { path: '/colors', component: () => import('./views/ColorsDemo.vue') },
   { path: '/typography', component: () => import('./views/TypographyDemo.vue') },
   { path: '/transitions', component: () => import('./views/TransitionsDemo.vue') },
   { path: '/gestures', component: () => import('./views/GesturesDemo.vue') },
