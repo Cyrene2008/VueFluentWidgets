@@ -5,18 +5,22 @@
   "author": "Cyrene2008 <https://github.com/Cyrene2008>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Cyrene2008/VueFluentWidgets.git"
+    "url": "git+https://github.com/Cyrene2008/VueFluentWidgets.git"
   },
   "type": "module",
   "main": "./dist/vue-fluent-widgets.umd.cjs",
   "module": "./dist/vue-fluent-widgets.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/vue-fluent-widgets.js",
       "require": "./dist/vue-fluent-widgets.umd.cjs"
     },
-    "./style.css": "./dist/vue-fluent-widgets.css"
+    "./style.css": "./dist/vue-fluent-widgets.css",
+    "./package.json": "./package.json"
   },
+  "sideEffects": ["./dist/vue-fluent-widgets.css"],
   "files": [
     "dist"
   ],
@@ -26,10 +30,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@iconify/vue": "^4.3.0",
-    "vue": "^3.5.0"
+    "@iconify/vue": "^4.3.0"
   },
   "peerDependencies": {
+    "vue": "^3.5.0",
     "@iconify-json/fluent": "^1.2.10",
     "vue-router": "^4.0.0"
   },
