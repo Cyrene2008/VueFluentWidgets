@@ -66,7 +66,7 @@ const menuItems = [
   { id: 'modal', label: '模态框', icon: 'window-20-regular', to: '/modal', badge: '3' },
   { id: 'toast', label: '消息提示', icon: 'alert-20-regular', to: '/toast' },
   { id: 'separator4', type: 'separator' },
-  { id: 'settings', label: '设置', icon: 'settings-20-regular', to: '/colors' }
+  { id: 'settings', label: '设置', icon: 'settings-20-regular', to: '/material' }
 ]
 
 const basicCode = `<FluentNavigationView 
