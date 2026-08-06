@@ -1,5 +1,3 @@
-@import './fonts.css';
-
 *,
 *::before,
 *::after {
@@ -58,7 +56,7 @@ body {
 }
 
 input, button, select, textarea {
-  font-family: 'MiSans', 'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif;
+  font-family: var(--font-ui);
   font-size: 14px;
 }
 
