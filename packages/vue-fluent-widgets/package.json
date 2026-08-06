@@ -3,6 +3,10 @@
   "version": "0.1.0",
   "description": "A collection of Fluent Design System (WinUI3) components for Vue",
   "author": "Cyrene2008 <https://github.com/Cyrene2008>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Cyrene2008/VueFluentWidgets.git"
+  },
   "type": "module",
   "main": "./dist/vue-fluent-widgets.umd.cjs",
   "module": "./dist/vue-fluent-widgets.js",
