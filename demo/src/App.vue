@@ -203,6 +203,7 @@ const navItems = [
   ]},
   { id: 'advanced', label: '高级功能', icon: 'settings', children: [
     { id: 'theming', label: '主题定制', icon: 'palette', children: [
+      { id: 'colors', label: '颜色系统', to: '/colors', icon: 'color' },
       { id: 'material', label: '材质系统', to: '/material', icon: 'material' },
       { id: 'typography', label: '字体排版', to: '/typography', icon: 'text' }
     ]},
