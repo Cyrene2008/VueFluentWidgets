@@ -5,8 +5,8 @@
       <p>Fluent 设计系统的颜色体系。</p>
     </div>
 
-    <FluentControlExample 
-      header-text="主题色" 
+    <FluentControlExample
+      header-text="主题色"
       :source-code="themeColorsCode"
     >
       <template #example>
@@ -22,8 +22,8 @@
       </template>
     </FluentControlExample>
 
-    <FluentControlExample 
-      header-text="中性色" 
+    <FluentControlExample
+      header-text="中性色"
       :source-code="neutralColorsCode"
     >
       <template #example>
@@ -39,8 +39,8 @@
       </template>
     </FluentControlExample>
 
-    <FluentControlExample 
-      header-text="状态色" 
+    <FluentControlExample
+      header-text="状态色"
       :source-code="statusColorsCode"
     >
       <template #example>
