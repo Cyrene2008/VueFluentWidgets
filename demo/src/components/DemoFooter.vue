@@ -55,10 +55,11 @@ const { text } = useDemoLocale()
 
 <style scoped>
 .demo-footer {
+  width: calc(100% + 80px);
   background: var(--bg-card);
   border-top: 1px solid var(--border-strong);
   padding: 32px 40px;
-  margin-top: 72px;
+  margin: 72px -40px -80px;
 }
 
 .footer-content {
@@ -203,6 +204,12 @@ const { text } = useDemoLocale()
 }
 
 @media (max-width: 768px) {
+  .demo-footer {
+    width: calc(100% + 32px);
+    margin: 48px -16px -24px;
+    padding: 28px 16px;
+  }
+
   .footer-content {
     text-align: center;
   }
@@ -223,6 +230,13 @@ const { text } = useDemoLocale()
 
   .footer-legal {
     justify-content: center;
+  }
+}
+
+@media (max-width: 420px) {
+  .demo-footer {
+    width: calc(100% + 24px);
+    margin-inline: -12px;
   }
 }
 </style>
