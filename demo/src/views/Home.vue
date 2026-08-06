@@ -3,71 +3,74 @@
     <div class="hero-section">
       <h1>Vue Fluent Widgets</h1>
       <p class="hero-description">
-        基于 Fluent Design System 的 Vue 3 组件库，提供 100+ 组件，支持 Acrylic、Mica、Liquid Glass 等材质效果。
+        {{ text(`基于 Fluent Design System 的 Vue 3 组件库，提供 ${componentCount} 个组件，支持 Acrylic、Mica、Liquid Glass 等材质效果。`, `A Vue 3 library with ${componentCount} Fluent components and Solid, Acrylic, Mica, and Liquid Glass materials.`) }}
       </p>
       <div class="hero-actions">
         <FluentButton variant="primary" size="lg" @click="openRepository">
-          查看 GitHub 仓库
+          {{ text('查看 GitHub 仓库', 'View on GitHub') }}
         </FluentButton>
         <FluentButton variant="secondary" size="lg" @click="$router.push('/button')">
-          浏览组件
+          {{ text('浏览组件', 'Browse components') }}
+        </FluentButton>
+        <FluentButton variant="subtle" size="lg" @click="$router.push('/docs/getting-started')">
+          {{ text('查看使用文档', 'Read the docs') }}
         </FluentButton>
       </div>
     </div>
 
     <div class="stats-section">
       <div class="stat-item">
-        <span class="stat-value">112+</span>
-        <span class="stat-label">组件</span>
+        <span class="stat-value">{{ componentCount }}</span>
+        <span class="stat-label">{{ text('组件', 'Components') }}</span>
       </div>
       <div class="stat-item">
         <span class="stat-value">4</span>
-        <span class="stat-label">材质效果</span>
+        <span class="stat-label">{{ text('材质效果', 'Materials') }}</span>
       </div>
       <div class="stat-item">
         <span class="stat-value">Vue 3</span>
-        <span class="stat-label">框架</span>
+        <span class="stat-label">{{ text('框架', 'Framework') }}</span>
       </div>
       <div class="stat-item">
         <span class="stat-value">TypeScript</span>
-        <span class="stat-label">支持</span>
+        <span class="stat-label">{{ text('支持', 'Support') }}</span>
       </div>
     </div>
 
     <div class="features-section">
-      <h2>主要特性</h2>
+      <h2>{{ text('主要特性', 'Highlights') }}</h2>
       <div class="features-grid">
         <div class="feature-card">
           <FluentIcon icon="paint-brush-20-regular" :width="32" />
           <h3>Fluent Design</h3>
-          <p>完全遵循微软 Fluent Design System 设计规范</p>
+          <p>{{ text('完全遵循微软 Fluent Design System 设计规范', 'Built around Microsoft Fluent Design conventions') }}</p>
         </div>
         <div class="feature-card">
           <FluentIcon icon="layer-20-regular" :width="32" />
-          <h3>材质效果</h3>
-          <p>支持 Solid、Acrylic、Mica、Liquid Glass 等材质</p>
+          <h3>{{ text('材质效果', 'Material effects') }}</h3>
+          <p>{{ text('支持 Solid、Acrylic、Mica、Liquid Glass 等材质', 'Includes Solid, Acrylic, Mica, and Liquid Glass materials') }}</p>
         </div>
         <div class="feature-card">
           <FluentIcon icon="code-20-regular" :width="32" />
-          <h3>Vue 3 原生</h3>
-          <p>使用 Composition API，完美支持 TypeScript</p>
+          <h3>{{ text('Vue 3 原生', 'Native Vue 3') }}</h3>
+          <p>{{ text('使用 Composition API，完美支持 TypeScript', 'Composition API architecture with TypeScript support') }}</p>
         </div>
         <div class="feature-card">
           <FluentIcon icon="accessibility-20-regular" :width="32" />
-          <h3>无障碍访问</h3>
-          <p>完整的 ARIA 支持，键盘导航友好</p>
+          <h3>{{ text('无障碍访问', 'Accessibility') }}</h3>
+          <p>{{ text('完整的 ARIA 支持，键盘导航友好', 'ARIA semantics and keyboard-friendly navigation') }}</p>
         </div>
       </div>
     </div>
 
     <div class="categories-section">
-      <h2>组件分类</h2>
+      <h2>{{ text('组件分类', 'Component categories') }}</h2>
       <div class="categories-grid">
         <div v-for="category in categories" :key="category.id" class="category-card">
-          <h3>{{ category.label }}</h3>
+          <h3>{{ text(category.label, category.englishLabel) }}</h3>
           <ul>
             <li v-for="item in category.items" :key="item.id">
-              <router-link :to="item.to">{{ item.label }}</router-link>
+              <router-link :to="item.to">{{ text(item.label, item.englishLabel || item.label) }}</router-link>
             </li>
           </ul>
         </div>
@@ -75,27 +78,27 @@
     </div>
 
     <div class="material-preview-section">
-      <h2>材质效果预览</h2>
+      <h2>{{ text('材质效果预览', 'Material preview') }}</h2>
       <div class="material-preview-grid">
         <div class="material-preview-item">
           <FluentCard material="solid" class="material-card">
             <FluentIcon icon="layer-20-regular" :width="32" />
             <h3>Solid</h3>
-            <p>默认不透明背景</p>
+            <p>{{ text('默认不透明背景', 'Opaque surface') }}</p>
           </FluentCard>
         </div>
         <div class="material-preview-item">
           <FluentLiquidGlass variant="light" class="material-card">
             <FluentIcon icon="sparkle-20-regular" :width="32" />
             <h3>Liquid Glass</h3>
-            <p>液态玻璃效果</p>
+            <p>{{ text('液态玻璃效果', 'Liquid glass surface') }}</p>
           </FluentLiquidGlass>
         </div>
         <div class="material-preview-item">
           <FluentLiquidGlass variant="dark" class="material-card">
             <FluentIcon icon="weather-moon-20-regular" :width="32" />
             <h3>Dark Glass</h3>
-            <p>深色液态玻璃</p>
+            <p>{{ text('深色液态玻璃', 'Dark liquid glass') }}</p>
           </FluentLiquidGlass>
         </div>
       </div>
@@ -106,6 +109,11 @@
 
 <script setup>
 import { FluentIcon, FluentButton, FluentCard, FluentLiquidGlass } from 'vue-fluent-widgets'
+import { componentCatalog } from '../data/componentCatalog.js'
+import { useDemoLocale } from '../composables/useDemoLocale.js'
+
+const componentCount = componentCatalog.filter(component => !component.internal).length
+const { text } = useDemoLocale()
 
 const openRepository = () => {
   window.open('https://github.com/Cyrene2008/VueFluentWidgets', '_blank', 'noopener,noreferrer')
@@ -114,7 +122,7 @@ const openRepository = () => {
 const categories = [
   {
     id: 'basic-input',
-    label: '基础输入',
+    label: '基础输入', englishLabel: 'Basic input',
     items: [
       { id: 'button', label: 'Button', to: '/button' },
       { id: 'checkbox', label: 'CheckBox', to: '/checkbox' },
@@ -124,7 +132,7 @@ const categories = [
   },
   {
     id: 'feedback',
-    label: '反馈',
+    label: '反馈', englishLabel: 'Feedback',
     items: [
       { id: 'modal', label: 'Modal', to: '/modal' },
       { id: 'toast', label: 'Toast', to: '/toast' },
@@ -134,7 +142,7 @@ const categories = [
   },
   {
     id: 'navigation',
-    label: '导航',
+    label: '导航', englishLabel: 'Navigation',
     items: [
       { id: 'navigationview', label: 'NavigationView', to: '/navigationview' },
       { id: 'menubar', label: 'MenuBar', to: '/menubar' },
@@ -144,10 +152,10 @@ const categories = [
   },
   {
     id: 'advanced',
-    label: '高级功能',
+    label: '高级功能', englishLabel: 'Advanced',
     items: [
-      { id: 'material', label: '材质系统', to: '/material' },
-      { id: 'mediaplayer', label: '媒体播放器', to: '/mediaplayer' },
+      { id: 'material', label: '材质系统', englishLabel: 'Materials', to: '/material' },
+      { id: 'mediaplayer', label: '媒体播放器', englishLabel: 'MediaPlayer', to: '/mediaplayer' },
         { id: 'rating', label: 'Rating', to: '/rating' }
     ]
   }
