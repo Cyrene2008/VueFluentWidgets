@@ -187,7 +187,6 @@ const englishLabels = {
   advanced: 'Advanced',
   theming: 'Theming',
   animations: 'Animations',
-  colors: 'Colors',
   material: 'Materials',
   typography: 'Typography',
   transitions: 'Transitions',
