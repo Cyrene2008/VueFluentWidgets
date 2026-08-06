@@ -1,5 +1,6 @@
 <template>
   <div class="fluent-input-wrapper" :class="{ focused, disabled }">
+    <label v-if="label" class="input-label">{{ label }}</label>
     <span v-if="$slots.prefix" class="input-prefix">
       <slot name="prefix" />
     </span>
@@ -9,6 +10,7 @@
       :value="modelValue"
       :placeholder="placeholder"
       :disabled="disabled"
+      :readonly="readonly"
       :min="min"
       :max="max"
       :step="step"
@@ -21,6 +23,7 @@
     <span v-if="$slots.suffix" class="input-suffix">
       <slot name="suffix" />
     </span>
+    <span v-if="error" class="input-error">{{ error }}</span>
   </div>
 </template>
 
@@ -34,7 +37,10 @@ defineProps({
   disabled: { type: Boolean, default: false },
   min: { type: [Number, String], default: undefined },
   max: { type: [Number, String], default: undefined },
-  step: { type: [Number, String], default: undefined }
+  step: { type: [Number, String], default: undefined },
+  label: { type: String, default: '' },
+  readonly: { type: Boolean, default: false },
+  error: { type: String, default: '' }
 })
 
 defineEmits(['update:modelValue', 'enter'])
@@ -61,6 +67,9 @@ defineExpose({ focus })
   transition: all var(--duration-fast) ease;
   min-height: 32px;
 }
+
+.input-label { color: var(--text-secondary); font-size: 12px; white-space: nowrap; }
+.input-error { color: #d13438; font-size: 12px; white-space: nowrap; }
 
 .fluent-input-wrapper:hover {
   border-color: var(--text-muted);
