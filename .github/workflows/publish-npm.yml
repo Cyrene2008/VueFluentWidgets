@@ -11,6 +11,7 @@ on:
 permissions:
   contents: write
   id-token: write
+  pull-requests: write
 
 concurrency:
   group: npm-publish
@@ -55,16 +56,18 @@ jobs:
         working-directory: packages/vue-fluent-widgets
         run: npm publish --registry https://registry.npmjs.org --access public --provenance
 
-      - name: Commit version and tag
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add packages/vue-fluent-widgets/package.json pnpm-lock.yaml
-          if git diff --cached --quiet; then
-            echo "No version change to commit"
-          else
-            git commit -m "chore: release v${{ inputs.version }} [skip ci]"
-            git tag "v${{ inputs.version }}"
-            git push
-            git push --tags
-          fi
+      - name: Open version update pull request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: release v${{ inputs.version }}"
+          title: "chore: release v${{ inputs.version }}"
+          body: |
+            The npm publish workflow released `vue-fluent-widgets@${{ inputs.version }}`.
+
+            This pull request records the published package version in the repository.
+          branch: "release/v${{ inputs.version }}"
+          delete-branch: true
+          add-paths: |
+            packages/vue-fluent-widgets/package.json
+            pnpm-lock.yaml
