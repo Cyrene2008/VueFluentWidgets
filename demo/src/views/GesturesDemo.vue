@@ -46,7 +46,11 @@
           <div 
             class="draggable"
             :style="{ transform: `translate(${dragX}px, ${dragY}px)` }"
-            @mousedown="startDrag"
+            @pointerdown="startDrag"
+            @pointermove="onDrag"
+            @pointerup="stopDrag"
+            @pointercancel="stopDrag"
+            @lostpointercapture="stopDrag"
           >
             拖拽我
           </div>
@@ -71,7 +75,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onUnmounted } from 'vue'
 import { FluentButton, FluentControlExample } from 'vue-fluent-widgets'
 
 const clickCount = ref(0)
@@ -80,6 +84,7 @@ let longPressTimer = null
 const dragX = ref(0)
 const dragY = ref(0)
 let isDragging = false
+let dragPointerId = null
 let startX = 0
 let startY = 0
 
@@ -106,31 +111,33 @@ const endLongPress = () => {
 }
 
 const startDrag = (e) => {
+  if (e.pointerType === 'mouse' && e.button !== 0) return
   isDragging = true
+  dragPointerId = e.pointerId
   startX = e.clientX - dragX.value
   startY = e.clientY - dragY.value
-  document.addEventListener('mousemove', onDrag)
-  document.addEventListener('mouseup', stopDrag)
+  e.currentTarget.setPointerCapture(e.pointerId)
 }
 
 const onDrag = (e) => {
-  if (!isDragging) return
+  if (!isDragging || e.pointerId !== dragPointerId) return
   dragX.value = e.clientX - startX
   dragY.value = e.clientY - startY
 }
 
-const stopDrag = () => {
+const stopDrag = (e) => {
+  if (e?.pointerId != null && e.pointerId !== dragPointerId) return
+  if (e?.currentTarget?.hasPointerCapture?.(dragPointerId)) e.currentTarget.releasePointerCapture(dragPointerId)
   isDragging = false
-  document.removeEventListener('mousemove', onDrag)
-  document.removeEventListener('mouseup', stopDrag)
+  dragPointerId = null
 }
 
 onUnmounted(() => {
   if (longPressTimer) {
     clearTimeout(longPressTimer)
   }
-  document.removeEventListener('mousemove', onDrag)
-  document.removeEventListener('mouseup', stopDrag)
+  isDragging = false
+  dragPointerId = null
 })
 
 const clickCode = `<FluentButton @click="handleClick">点击我</FluentButton>
@@ -166,17 +173,20 @@ const endLongPress = () => {
 const dragCode = `<div 
   class="draggable"
   :style="{ transform: \`translate(\${dragX}px, \${dragY}px)\` }"
-  @mousedown="startDrag"
+  @pointerdown="startDrag"
+  @pointermove="onDrag"
+  @pointerup="stopDrag"
+  @pointercancel="stopDrag"
 >
   拖拽我
 </div>
 
 const startDrag = (e) => {
   isDragging = true
+  dragPointerId = e.pointerId
   startX = e.clientX - dragX.value
   startY = e.clientY - dragY.value
-  document.addEventListener('mousemove', onDrag)
-  document.addEventListener('mouseup', stopDrag)
+  e.currentTarget.setPointerCapture(e.pointerId)
 }`
 
 const hoverCode = `<div class="hover-box">
@@ -233,6 +243,7 @@ const hoverCode = `<div class="hover-box">
   border-radius: var(--radius-md);
   cursor: grab;
   user-select: none;
+  touch-action: none;
   transition: box-shadow 0.2s ease;
 }
 
