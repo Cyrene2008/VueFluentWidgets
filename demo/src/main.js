@@ -1,9 +1,10 @@
 import { createApp } from 'vue'
-import { createRouter, createWebHashHistory } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
 import { addCollection } from '@iconify/vue/dist/iconify.mjs'
 import App from './App.vue'
 import VueFluentWidgets from 'vue-fluent-widgets'
 import 'vue-fluent-widgets/style.css'
+import './styles/demo-fonts.css'
 
 // 导入 Fluent 图标集
 import { icons as fluentIcons } from '@iconify-json/fluent'
@@ -11,6 +12,11 @@ addCollection(fluentIcons)
 
 const routes = [
   { path: '/', component: () => import('./views/Home.vue') },
+  { path: '/docs/getting-started', component: () => import('./views/GettingStarted.vue') },
+  { path: '/docs/components', component: () => import('./views/ComponentIndex.vue') },
+  { path: '/docs/component/:name', component: () => import('./views/ComponentDetail.vue') },
+  { path: '/docs/composition', component: () => import('./views/CompositionGuide.vue') },
+  { path: '/playground', component: () => import('./views/Playground.vue') },
   { path: '/autosuggestbox', component: () => import('./views/AutoSuggestBoxDemo.vue') },
   { path: '/breadcrumbbar', component: () => import('./views/BreadcrumbBarDemo.vue') },
   { path: '/button', component: () => import('./views/ButtonDemo.vue') },
@@ -19,6 +25,15 @@ const routes = [
   { path: '/colorpicker', component: () => import('./views/ColorPickerDemo.vue') },
   { path: '/commandbar', component: () => import('./views/CommandBarDemo.vue') },
   { path: '/datepicker', component: () => import('./views/DatePickerDemo.vue') },
+  { path: '/calendar-date-picker', component: () => import('./views/ExtendedComponentsDemo.vue') },
+  { path: '/combo-box', component: () => import('./views/ExtendedComponentsDemo.vue') },
+  { path: '/data-grid', component: () => import('./views/ExtendedComponentsDemo.vue') },
+  { path: '/content-dialog', component: () => import('./views/ExtendedComponentsDemo.vue') },
+  { path: '/drawer', component: () => import('./views/ExtendedComponentsDemo.vue') },
+  { path: '/rich-edit-box', component: () => import('./views/ExtendedComponentsDemo.vue') },
+  { path: '/control-primitives', component: () => import('./views/UncoveredComponentsDemo.vue') },
+  { path: '/interaction-patterns', component: () => import('./views/UncoveredComponentsDemo.vue') },
+  { path: '/content-states', component: () => import('./views/UncoveredComponentsDemo.vue') },
   { path: '/dropdownbutton', component: () => import('./views/DropDownButtonDemo.vue') },
   { path: '/expander', component: () => import('./views/ExpanderDemo.vue') },
   { path: '/flipview', component: () => import('./views/FlipViewDemo.vue') },
@@ -70,8 +85,11 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHashHistory(),
-  routes
+  history: createWebHistory(import.meta.env.BASE_URL),
+  routes,
+  scrollBehavior() {
+    return { left: 0, top: 0 }
+  }
 })
 
 const app = createApp(App)
