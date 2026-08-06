@@ -9,9 +9,8 @@ on:
         type: string
 
 permissions:
-  contents: write
+  contents: read
   id-token: write
-  pull-requests: write
 
 concurrency:
   group: npm-publish
@@ -55,19 +54,3 @@ jobs:
       - name: Publish to npm (Trusted Publishing / OIDC)
         working-directory: packages/vue-fluent-widgets
         run: npm publish --registry https://registry.npmjs.org --access public --provenance
-
-      - name: Open version update pull request
-        uses: peter-evans/create-pull-request@v7
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "chore: release v${{ inputs.version }}"
-          title: "chore: release v${{ inputs.version }}"
-          body: |
-            The npm publish workflow released `vue-fluent-widgets@${{ inputs.version }}`.
-
-            This pull request records the published package version in the repository.
-          branch: "release/v${{ inputs.version }}"
-          delete-branch: true
-          add-paths: |
-            packages/vue-fluent-widgets/package.json
-            pnpm-lock.yaml
