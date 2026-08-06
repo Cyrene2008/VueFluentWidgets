@@ -30,7 +30,7 @@
       <h3>不可关闭</h3>
       <div class="demo-row">
         <FluentButton @click="showModal3 = true">不可关闭模态框</FluentButton>
-        <FluentModal v-model="showModal3" title="重要提示" :closable="false">
+        <FluentModal v-model="showModal3" title="重要提示" persistent>
           <p>这个模态框不能通过点击遮罩层或关闭按钮关闭。</p>
           <template #footer>
             <FluentButton variant="primary" @click="showModal3 = false">我知道了</FluentButton>
@@ -48,7 +48,7 @@
   &lt;/template&gt;
 &lt;/FluentModal&gt;
 
-&lt;FluentModal v-model="showModal" title="重要提示" :closable="false"&gt;
+&lt;FluentModal v-model="showModal" title="重要提示" persistent&gt;
   &lt;p&gt;这个模态框不能通过点击遮罩层关闭。&lt;/p&gt;
 &lt;/FluentModal&gt;</code></pre>
       </div>
