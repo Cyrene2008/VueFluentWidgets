@@ -2,6 +2,7 @@
   <div 
     class="fluent-swipe-control"
     :class="{ 'is-swiping': isSwiping }"
+    :style="{ '--swipe-action-width': `${Math.max(0, threshold)}px` }"
     @touchstart="onTouchStart"
     @touchmove="onTouchMove"
     @touchend="onTouchEnd"
@@ -84,9 +85,9 @@ const onTouchEnd = () => {
   isSwiping.value = false
   
   // 根据滑动距离决定是否显示操作按钮
-  if (swipeOffset.value > props.threshold && props.leftActions.length > 0) {
+  if (swipeOffset.value >= props.threshold && props.leftActions.length > 0) {
     swipeOffset.value = props.threshold
-  } else if (swipeOffset.value < -props.threshold && props.rightActions.length > 0) {
+  } else if (swipeOffset.value <= -props.threshold && props.rightActions.length > 0) {
     swipeOffset.value = -props.threshold
   } else {
     swipeOffset.value = 0
@@ -102,8 +103,10 @@ const onAction = (action) => {
 <style scoped>
 .fluent-swipe-control {
   position: relative;
+  min-width: 0;
   overflow: hidden;
   border-radius: var(--radius-md);
+  touch-action: pan-y;
 }
 
 .swipe-actions {
@@ -112,6 +115,7 @@ const onAction = (action) => {
   bottom: 0;
   display: flex;
   align-items: center;
+  width: var(--swipe-action-width);
 }
 
 .left-actions {
@@ -124,6 +128,8 @@ const onAction = (action) => {
 
 .swipe-action {
   display: flex;
+  min-width: 0;
+  flex: 1 1 0;
   align-items: center;
   justify-content: center;
   gap: 8px;
@@ -139,6 +145,9 @@ const onAction = (action) => {
 .swipe-content {
   position: relative;
   z-index: 1;
+  box-sizing: border-box;
+  height: 100%;
+  min-height: 100%;
   background: var(--bg-card);
 }
 </style>
