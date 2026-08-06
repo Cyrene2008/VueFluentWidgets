@@ -4,6 +4,12 @@
 
 [在线 Demo 演示](https://fluent.cyrene.hk)
 
+## 安装
+
+```bash
+npm i vue-fluent-widgets
+```
+
 ## 使用
 
 ```js
@@ -14,6 +20,21 @@ import 'vue-fluent-widgets/style.css'
 createApp(App).use(VueFluentWidgets).mount('#app')
 
 ```
+
+也可以按需导入组件，组件支持标准 Vue 3 模板语法：
+
+```vue
+<script setup>
+import { FluentButton, FluentMediaPlayer } from 'vue-fluent-widgets'
+</script>
+
+<template>
+  <FluentButton>保存</FluentButton>
+  <FluentMediaPlayer src="/media/intro.mp4" show-minimize @minimize="continuePlaying" />
+</template>
+```
+
+组件库包含 TypeScript 类型声明，`vue` 作为 peer dependency 由应用提供；样式通过 `vue-fluent-widgets/style.css` 引入。
 
 ## 主题
 
