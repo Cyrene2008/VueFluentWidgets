@@ -1,6 +1,14 @@
 <template>
-  <div class="demo-app">
-    <NavigationDock :items="navItems" />
+  <div class="demo-app" :class="{ 'theme-dark': isDark, 'theme-light': !isDark }">
+    <NavigationDock
+      :items="navItems"
+      :theme-mode="themeMode"
+      :accent-color="accentColor"
+      :language="language"
+      @update:theme-mode="setThemeMode"
+      @update:accent-color="setAccentColor"
+      @update:language="setLanguage"
+    />
     <div class="demo-main">
       <main class="demo-content">
         <router-view v-slot="{ Component, route }">
@@ -11,20 +19,122 @@
         <DemoFooter />
       </main>
     </div>
+    <Transition name="persistent-player">
+      <aside v-if="activeMedia" class="persistent-player" :aria-label="language === 'en' ? 'Persistent media player' : '跨路由媒体播放器'">
+        <header class="persistent-player__header">
+          <div><strong>{{ activeMedia.title }}</strong><span v-if="activeMedia.artist">{{ activeMedia.artist }}</span></div>
+          <button type="button" :aria-label="language === 'en' ? 'Close player' : '关闭播放器'" @click="closePersistentMedia">
+            <FluentIcon icon="dismiss-20-regular" :width="18" />
+          </button>
+        </header>
+        <FluentMediaPlayer
+          :key="persistentMediaKey"
+          ref="persistentPlayerRef"
+          :src="activeMedia.src"
+          :poster="activeMedia.poster"
+          :type="activeMedia.type"
+          :title="activeMedia.title"
+          :artist="activeMedia.artist"
+          :loop="activeMedia.loop"
+          :muted="activeMedia.muted"
+          :volume="activeMedia.volume"
+          :playback-rate="activeMedia.playbackRate"
+          :max-height="activeMedia.type === 'audio' ? 160 : 220"
+          :show-picture-in-picture="activeMedia.type !== 'audio'"
+          @loadedmetadata="resumePersistentMedia"
+        />
+      </aside>
+    </Transition>
   </div>
 </template>
 
 <script setup>
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { FluentIcon, FluentMediaPlayer } from 'vue-fluent-widgets'
 import NavigationDock from './components/NavigationDock.vue'
 import DemoFooter from './components/DemoFooter.vue'
+import { provideDemoLocale } from './composables/useDemoLocale.js'
+import { providePersistentMedia } from './composables/usePersistentMedia.js'
+
+const themeMode = ref('light')
+const accentColor = ref('#ea5ec1')
+const language = ref(localStorage.getItem('demo-language') === 'en' ? 'en' : 'zh')
+provideDemoLocale(language)
+const activeMedia = ref(null)
+const persistentMediaKey = ref(0)
+const persistentPlayerRef = ref(null)
+const startPersistentMedia = media => {
+  persistentPlayerRef.value?.pause()
+  activeMedia.value = { ...media }
+  persistentMediaKey.value += 1
+}
+const resumePersistentMedia = async () => {
+  if (!activeMedia.value) return
+  persistentPlayerRef.value?.seek(activeMedia.value.currentTime)
+  if (activeMedia.value.playing) await persistentPlayerRef.value?.play()
+}
+const closePersistentMedia = () => {
+  persistentPlayerRef.value?.pause()
+  activeMedia.value = null
+}
+providePersistentMedia({ startMedia: startPersistentMedia, closeMedia: closePersistentMedia })
+const systemDark = ref(false)
+let colorSchemeQuery
+const updateSystemDark = event => { systemDark.value = event.matches }
+
+const isDark = computed(() => themeMode.value === 'dark' || (themeMode.value === 'system' && systemDark.value))
+
+const applyTheme = () => {
+  const root = document.documentElement
+  root.classList.toggle('theme-dark', isDark.value)
+  root.classList.toggle('theme-light', !isDark.value)
+  root.style.setProperty('--fluent-accent', accentColor.value)
+  root.style.setProperty('--text-on-accent', textOnAccent(accentColor.value))
+}
+
+const textOnAccent = hex => {
+  const channels = hex.slice(1).match(/.{2}/g).map(value => parseInt(value, 16) / 255)
+  const linear = channels.map(value => value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4)
+  const luminance = linear[0] * 0.2126 + linear[1] * 0.7152 + linear[2] * 0.0722
+  const whiteContrast = 1.05 / (luminance + 0.05)
+  const blackContrast = (luminance + 0.05) / 0.05
+  return whiteContrast >= blackContrast ? '#ffffff' : '#111111'
+}
+
+const setThemeMode = mode => { themeMode.value = mode }
+const setAccentColor = color => { if (/^#[\da-f]{6}$/i.test(color)) accentColor.value = color }
+const setLanguage = value => { language.value = value === 'en' ? 'en' : 'zh' }
+
+watch([themeMode, accentColor, isDark], applyTheme)
+watch(language, value => {
+  localStorage.setItem('demo-language', value)
+  document.documentElement.lang = value === 'en' ? 'en' : 'zh-CN'
+}, { immediate: true })
+
+onMounted(() => {
+  colorSchemeQuery = window.matchMedia('(prefers-color-scheme: dark)')
+  systemDark.value = colorSchemeQuery.matches
+  colorSchemeQuery.addEventListener('change', updateSystemDark)
+  applyTheme()
+})
+
+onUnmounted(() => colorSchemeQuery?.removeEventListener('change', updateSystemDark))
 
 const navItems = [
   { id: 'home', label: '首页', to: '/', icon: 'home' },
+  { id: 'docs', label: '使用文档', icon: 'book-open-20-regular', children: [
+    { id: 'getting-started', label: '快速开始', to: '/docs/getting-started', icon: 'rocket-20-regular' },
+    { id: 'components', label: '组件索引', to: '/docs/components', icon: 'apps-list-20-regular' },
+    { id: 'composition', label: '组合与插槽', to: '/docs/composition', icon: 'layer-20-regular' },
+    { id: 'playground', label: '在线 Playground', to: '/playground', icon: 'code-20-regular' }
+  ]},
   { id: 'basic-input', label: '基础输入', icon: 'options', children: [
     { id: 'autosuggestbox', label: 'AutoSuggestBox 自动建议框', to: '/autosuggestbox', icon: 'auto-suggest' },
     { id: 'button', label: 'Button 按钮', to: '/button', icon: 'button' },
     { id: 'checkbox', label: 'CheckBox 复选框', to: '/checkbox', icon: 'checkbox' },
     { id: 'colorpicker', label: 'ColorPicker 颜色选择器', to: '/colorpicker', icon: 'color-picker' },
+    { id: 'calendar-date-picker', label: 'CalendarDatePicker 日历日期选择器', to: '/calendar-date-picker', icon: 'calendar' },
+    { id: 'combo-box', label: 'ComboBox 组合框', to: '/combo-box', icon: 'list' },
     { id: 'datepicker', label: 'DatePicker 日期选择器', to: '/datepicker', icon: 'calendar' },
     { id: 'dropdownbutton', label: 'DropDownButton 下拉按钮', to: '/dropdownbutton', icon: 'dropdown-button' },
     { id: 'hyperlinkbutton', label: 'HyperlinkButton 超链接按钮', to: '/hyperlinkbutton', icon: 'hyperlink' },
@@ -34,10 +144,12 @@ const navItems = [
     { id: 'passwordbox', label: 'PasswordBox 密码框', to: '/passwordbox', icon: 'password' },
     { id: 'radio', label: 'RadioButton 单选按钮', to: '/radio', icon: 'radio-button' },
     { id: 'repeatbutton', label: 'RepeatButton 重复按钮', to: '/repeatbutton', icon: 'repeat-button' },
+    { id: 'rich-edit-box', label: 'RichEditBox 富文本编辑框', to: '/rich-edit-box', icon: 'text-field' },
     { id: 'select', label: 'Select 选择器', to: '/select', icon: 'list' },
     { id: 'slider', label: 'Slider 滑块', to: '/slider', icon: 'slider' },
     { id: 'splitbutton', label: 'SplitButton 分割按钮', to: '/splitbutton', icon: 'split-button' },
     { id: 'textblock', label: 'TextBlock 文本块', to: '/textblock', icon: 'text' },
+    { id: 'control-primitives', label: 'MoreControls 扩展控件', to: '/control-primitives', icon: 'options' },
     { id: 'timepicker', label: 'TimePicker 时间选择器', to: '/timepicker', icon: 'clock' },
     { id: 'toggle', label: 'Toggle 开关', to: '/toggle', icon: 'toggle-left' }
   ]},
@@ -48,12 +160,15 @@ const navItems = [
   ]},
   { id: 'feedback', label: '反馈', icon: 'feedback', children: [
     { id: 'flyout', label: 'Flyout 弹出框', to: '/flyout', icon: 'flyout' },
+    { id: 'content-dialog', label: 'ContentDialog 内容对话框', to: '/content-dialog', icon: 'modal' },
+    { id: 'drawer', label: 'Drawer 侧边抽屉', to: '/drawer', icon: 'sidebar' },
     { id: 'infobar', label: 'InfoBar 信息栏', to: '/infobar', icon: 'info-bar' },
     { id: 'modal', label: 'Modal 模态框', to: '/modal', icon: 'modal' },
     { id: 'progressbar', label: 'ProgressBar 进度条', to: '/progressbar', icon: 'progress-bar' },
     { id: 'progressring', label: 'ProgressRing 进度环', to: '/progressring', icon: 'progress-ring' },
     { id: 'teachingtip', label: 'TeachingTip 教学提示', to: '/teachingtip', icon: 'teaching-tip' },
     { id: 'toast', label: 'Toast 消息提示', to: '/toast', icon: 'toast' },
+    { id: 'content-states', label: 'ContentStates 内容状态', to: '/content-states', icon: 'info-bar' },
     { id: 'tooltip', label: 'Tooltip 工具提示', to: '/tooltip', icon: 'tooltip' }
   ]},
   { id: 'navigation', label: '导航', icon: 'navigation', children: [
@@ -67,9 +182,11 @@ const navItems = [
     { id: 'treeview', label: 'TreeView 树形视图', to: '/treeview', icon: 'tree-view' }
   ]},
   { id: 'collections', label: '集合', icon: 'collections', children: [
+    { id: 'data-grid', label: 'DataGrid 数据表格', to: '/data-grid', icon: 'grid-view' },
     { id: 'flipview', label: 'FlipView 翻转视图', to: '/flipview', icon: 'flip-view' },
     { id: 'gridview', label: 'GridView 网格视图', to: '/gridview', icon: 'grid-view' },
     { id: 'listview', label: 'ListView 列表视图', to: '/listview', icon: 'list-view' },
+    { id: 'interaction-patterns', label: 'Interactions 扩展交互', to: '/interaction-patterns', icon: 'gesture' },
     { id: 'mediaplayer', label: 'MediaPlayer 媒体播放器', to: '/mediaplayer', icon: 'media-player' }
   ]},
   { id: 'scrolling', label: '滚动', icon: 'scrolling', children: [
@@ -100,7 +217,6 @@ const navItems = [
 
 <style>
 :root {
-  --fluent-accent: #ea5ec1;
   --font-ui: 'MiSans', 'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif;
 }
 
@@ -123,6 +239,56 @@ body {
   min-height: 0;
 }
 
+:root.theme-dark,
+:root.theme-light,
+.demo-app.theme-dark,
+.demo-app.theme-light {
+  --accent: var(--fluent-accent);
+  --accent-light: color-mix(in srgb, var(--accent), white 34%);
+  --accent-dark: color-mix(in srgb, var(--accent), black 18%);
+  --accent-hover: color-mix(in srgb, var(--accent), black 12%);
+  --accent-200: color-mix(in srgb, var(--accent), white 72%);
+  --accent-50: color-mix(in srgb, var(--accent), white 92%);
+}
+
+:root.theme-light,
+.demo-app.theme-light {
+  --bg-base: #f3f3f3;
+  --bg-card: rgba(255, 255, 255, .72);
+  --bg-card-solid: #ffffff;
+  --bg-hover: rgba(0, 0, 0, .045);
+  --bg-acrylic: rgba(252, 252, 252, .8);
+  --bg-mica: linear-gradient(135deg, #f4f4f4, #ececec);
+  --bg-mica-alt: linear-gradient(135deg, #eeeeee, #e6e6e6);
+  --bg-code: #f5f5f5;
+  --text-primary: #1b1b1b;
+  --text-secondary: #424242;
+  --text-muted: #707070;
+  --text-code: #1b1b1b;
+  --border-default: rgba(0, 0, 0, .08);
+  --border-subtle: rgba(0, 0, 0, .055);
+  --border-strong: rgba(0, 0, 0, .14);
+}
+
+:root.theme-dark,
+.demo-app.theme-dark {
+  --bg-base: #202020;
+  --bg-card: rgba(45, 45, 45, .78);
+  --bg-card-solid: #2b2b2b;
+  --bg-hover: #323232;
+  --bg-acrylic: rgba(32, 32, 32, .86);
+  --bg-mica: linear-gradient(135deg, #272727, #202020);
+  --bg-mica-alt: linear-gradient(135deg, #303030, #252525);
+  --bg-code: #171717;
+  --text-primary: #ffffff;
+  --text-secondary: #d6d6d6;
+  --text-muted: #a0a0a0;
+  --text-code: #f2f2f2;
+  --border-default: #444444;
+  --border-subtle: rgba(255, 255, 255, .07);
+  --border-strong: rgba(255, 255, 255, .16);
+}
+
 .demo-main {
   flex: 1;
   min-width: 0;
@@ -131,10 +297,33 @@ body {
   flex-direction: column;
 }
 
+.persistent-player {
+  position: fixed;
+  right: 20px;
+  bottom: max(20px, env(safe-area-inset-bottom));
+  z-index: 70;
+  width: min(420px, calc(100vw - 40px));
+  overflow: hidden;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--bg-card-solid);
+  box-shadow: var(--shadow-16);
+}
+
+.persistent-player__header { display: flex; min-height: 42px; align-items: center; justify-content: space-between; gap: 12px; padding: 7px 8px 7px 12px; color: var(--text-primary); }
+.persistent-player__header div { display: flex; min-width: 0; flex-direction: column; }
+.persistent-player__header strong, .persistent-player__header span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.persistent-player__header strong { font-size: 13px; }
+.persistent-player__header span { color: var(--text-muted); font-size: 11px; }
+.persistent-player__header button { display: inline-flex; flex: 0 0 32px; align-items: center; justify-content: center; width: 32px; height: 32px; border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--text-secondary); cursor: pointer; }
+.persistent-player__header button:hover { background: var(--bg-hover); color: var(--text-primary); }
+.persistent-player-enter-active, .persistent-player-leave-active { transition: opacity var(--duration-fast) ease, transform var(--duration-normal) var(--ease-standard); }
+.persistent-player-enter-from, .persistent-player-leave-to { opacity: 0; transform: translateY(16px); }
+
 .demo-content {
   flex: 1;
   min-height: 0;
-  padding: 40px;
+  padding: 40px 40px 80px;
   width: 100%;
   overflow-y: auto;
   overflow-x: hidden;
@@ -213,6 +402,8 @@ body {
   .demo-section {
     padding: 18px;
   }
+
+  .persistent-player { right: 12px; bottom: max(12px, env(safe-area-inset-bottom)); width: calc(100vw - 24px); }
 }
 
 @media (max-width: 420px) {
