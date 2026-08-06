@@ -1,5 +1,5 @@
 <template>
-  <div class="fluent-image-viewer" :class="{ 'is-loading': isLoading, 'has-error': hasError, clickable }">
+  <div class="fluent-image-viewer" :style="viewerStyle" :class="{ 'is-loading': isLoading, 'has-error': hasError, clickable }">
     <img
       v-if="!hasError"
       :src="src"
@@ -54,6 +54,10 @@ const imageStyle = computed(() => ({
   cursor: props.clickable ? 'pointer' : 'default'
 }))
 
+const viewerStyle = computed(() => ({
+  width: cssLength(props.width)
+}))
+
 const onLoad = () => {
   isLoading.value = false
   hasError.value = false
@@ -76,7 +80,8 @@ const onImageClick = () => {
 <style scoped>
 .fluent-image-viewer {
   position: relative;
-  display: inline-block;
+  display: block;
+  max-width: 100%;
   overflow: hidden;
   border-radius: var(--radius-md);
   background: var(--bg-card);
