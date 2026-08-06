@@ -1,0 +1,21 @@
+@font-face {
+  font-family: 'MiSans';
+  src: url('../fonts/MiSans-Regular.woff2') format('woff2');
+  font-weight: 400 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --font-ui: 'MiSans', 'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif;
+  --font-display: 'MiSans', 'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif;
+  --font-num: 'MiSans', system-ui, sans-serif;
+}
+
+@font-face {
+  font-family: 'MiSans';
+  src: url('../fonts/MiSans-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
