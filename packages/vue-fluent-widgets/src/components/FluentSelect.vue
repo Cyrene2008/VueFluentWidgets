@@ -1,5 +1,6 @@
 <template>
   <div class="fluent-select-wrapper" ref="wrapperRef">
+    <label v-if="label" class="select-label">{{ label }}</label>
     <button
       class="fluent-select"
       :class="{ open, disabled }"
@@ -21,11 +22,12 @@
             :class="{ selected: opt.value === modelValue }"
             @click="select(opt.value)"
           >
-            {{ opt.label }}
+            <slot name="option" :option="opt">{{ opt.label }}</slot>
           </button>
         </div>
       </Transition>
-    </Teleport>
+      </Teleport>
+    <div v-if="error" class="select-error">{{ error }}</div>
   </div>
 </template>
 
@@ -38,10 +40,12 @@ const props = defineProps({
   options: { type: Array, default: () => [] },
   placeholder: { type: String, default: '请选择' },
   disabled: { type: Boolean, default: false },
-  width: { type: String, default: '' }
+  width: { type: String, default: '' },
+  label: { type: String, default: '' },
+  error: { type: String, default: '' }
 })
 
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits(['update:modelValue', 'change'])
 
 const open = ref(false)
 const wrapperRef = ref(null)
@@ -97,6 +101,7 @@ function toggle() {
 
 function select(value) {
   emit('update:modelValue', value)
+  emit('change', value)
   open.value = false
 }
 
@@ -124,6 +129,9 @@ onBeforeUnmount(() => {
 .fluent-select-wrapper {
   display: inline-block;
 }
+
+.select-label { display: block; margin-bottom: 6px; color: var(--text-secondary); font-size: 13px; }
+.select-error { margin-top: 6px; color: #d13438; font-size: 12px; }
 
 .fluent-select {
   display: flex;
