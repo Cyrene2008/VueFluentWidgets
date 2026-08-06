@@ -14,7 +14,9 @@
           <FluentMediaPlayer 
             :src="asset('loop.mp4')"
             :poster="asset('images/Cyrene01.webp')"
+            show-minimize
             class="demo-player"
+            @minimize="startMedia"
           />
           <FluentInfoBar severity="info" title="视频素材版权声明" message="视频素材来源于《崩坏：星穹铁道》相关内容，原始版权归 miHoYo / HoYoverse 及其他原权利人所有。本页面仅用于 Vue Fluent Widgets 组件演示，不主张相关素材权利。" :closable="false" />
         </div>
@@ -33,7 +35,9 @@
             type="audio"
             title="New Page"
             artist="Cyrene2008"
+            show-minimize
             class="demo-audio"
+            @minimize="startMedia"
           />
           <FluentInfoBar severity="info" title="音频素材版权声明" message="音频素材来源于《崩坏：星穹铁道》相关内容，原始版权归 miHoYo / HoYoverse 及其他原权利人所有。本页面仅用于 Vue Fluent Widgets 组件演示，不主张相关素材权利。" :closable="false" />
         </div>
@@ -110,11 +114,13 @@ import {
   FluentControlExample,
   FluentIcon
 } from 'vue-fluent-widgets'
+import { usePersistentMedia } from '../composables/usePersistentMedia.js'
 
 const selectedImage = ref(null)
 const previewZoom = ref(1)
 const previewRotation = ref(0)
 const asset = path => `${import.meta.env.BASE_URL}${path}`
+const { startMedia } = usePersistentMedia()
 
 const images = [
   { src: asset('images/Cyrene01.webp'), alt: '图片1', caption: 'Cyrene01' },
@@ -143,6 +149,8 @@ const onPreviewWheel = event => changeZoom(event.deltaY > 0 ? -0.1 : 0.1)
 const playerCode = `<FluentMediaPlayer 
   :src="asset('loop.mp4')"
   :poster="asset('images/Cyrene01.webp')"
+  show-minimize
+  @minimize="continuePlaying"
 />`
 
 const audioCode = `<FluentMediaPlayer 
@@ -151,6 +159,8 @@ const audioCode = `<FluentMediaPlayer
   type="audio"
   title="New Page"
   artist="Cyrene2008"
+  show-minimize
+  @minimize="continuePlaying"
 />`
 
 const galleryCode = `<FluentImageViewer 
@@ -219,16 +229,15 @@ const avatarCode = `<FluentPersonPicture
 
 .image-gallery {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 16px;
-  margin-bottom: 16px;
 }
 
 .gallery-item {
   min-width: 0;
-  content-visibility: auto;
-  contain-intrinsic-size: 240px 220px;
 }
+
+.gallery-item :deep(.fluent-image-viewer) { display: block; width: 100%; }
 
 .image-preview {
   position: fixed;
