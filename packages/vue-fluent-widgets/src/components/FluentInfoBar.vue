@@ -132,6 +132,17 @@ const onAction = () => {
   color: var(--text-primary);
 }
 
+.severity-info .info-bar-title,
+.severity-info .info-bar-message,
+.severity-success .info-bar-title,
+.severity-success .info-bar-message,
+.severity-warning .info-bar-title,
+.severity-warning .info-bar-message,
+.severity-error .info-bar-title,
+.severity-error .info-bar-message {
+  color: #1f1f1f;
+}
+
 .info-bar-message {
   font-size: 14px;
   line-height: 20px;
