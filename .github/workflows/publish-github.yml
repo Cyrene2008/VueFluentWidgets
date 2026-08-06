@@ -33,8 +33,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-          registry-url: 'https://npm.pkg.github.com'
-          scope: '@Cyrene2008'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -46,7 +44,7 @@ jobs:
       - name: Scope package name for GitHub Packages
         working-directory: packages/vue-fluent-widgets
         run: |
-          node -e "const fs=require('fs');const f='./package.json';const p=JSON.parse(fs.readFileSync(f,'utf8'));p.name='@Cyrene2008/vue-fluent-widgets';fs.writeFileSync(f,JSON.stringify(p,null,2)+'\n')"
+          node -e "const fs=require('fs');const f='./package.json';const p=JSON.parse(fs.readFileSync(f,'utf8'));p.name='@cyrene2008/vue-fluent-widgets';fs.writeFileSync(f,JSON.stringify(p,null,2)+'\n')"
 
       - name: Build library
         run: pnpm -C packages/vue-fluent-widgets build
@@ -54,8 +52,17 @@ jobs:
       - name: Run tests
         run: pnpm test
 
+      - name: Configure npm for GitHub Packages
+        working-directory: packages/vue-fluent-widgets
+        run: |
+          cat > .npmrc <<'EOF'
+          @cyrene2008:registry=https://npm.pkg.github.com
+          //npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}
+          always-auth=true
+          EOF
+
       - name: Publish to GitHub Packages
         working-directory: packages/vue-fluent-widgets
-        run: npm publish
+        run: npm publish --registry https://npm.pkg.github.com
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
