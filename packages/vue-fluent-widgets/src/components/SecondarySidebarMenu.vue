@@ -145,8 +145,13 @@ const findItemByRoute = (path, items = props.items) => {
   for (const item of items) {
     if (item.to) {
       const itemPath = routePath(item.to)
-      if (path === itemPath || path.startsWith(`${itemPath}/`)) {
-        return item
+      if (path === itemPath || path.startsWith(`${itemPath}/`)) return item
+      const currentSegments = path.split('/').filter(Boolean)
+      const itemSegments = itemPath.split('/').filter(Boolean)
+      if (currentSegments.length > 0 && itemSegments.length > 0) {
+        const currentParent = currentSegments.slice(0, -1).join('/')
+        const itemParent = itemSegments.slice(0, -1).join('/')
+        if (currentParent === itemParent && currentSegments.length >= itemSegments.length) return item
       }
     }
     if (item.children) {
@@ -158,7 +163,18 @@ const findItemByRoute = (path, items = props.items) => {
 }
 
 const isItemActive = (item) => {
-  if (item.to) return route.path === routePath(item.to) || route.path.startsWith(`${routePath(item.to)}/`)
+  const currentPath = route.path
+  const itemPath = routePath(item.to)
+  if (item.to && (currentPath === itemPath || currentPath.startsWith(`${itemPath}/`))) return true
+  if (item.to) {
+    const currentSegments = currentPath.split('/').filter(Boolean)
+    const itemSegments = itemPath.split('/').filter(Boolean)
+    if (currentSegments.length > 0 && itemSegments.length > 0) {
+      const currentParent = currentSegments.slice(0, -1).join('/')
+      const itemParent = itemSegments.slice(0, -1).join('/')
+      if (currentParent === itemParent && currentSegments.length >= itemSegments.length) return true
+    }
+  }
   return item.children?.some(child => isItemActive(child)) || false
 }
 
@@ -219,13 +235,27 @@ const goBack = () => {
   emit('back')
 }
 
+const isRouteMatchingItem = (path, item) => {
+  if (!item.to) return false
+  const itemPath = routePath(item.to)
+  if (path === itemPath || path.startsWith(`${itemPath}/`)) return true
+  const currentSegments = path.split('/').filter(Boolean)
+  const itemSegments = itemPath.split('/').filter(Boolean)
+  if (currentSegments.length > 0 && itemSegments.length > 0) {
+    const currentParent = currentSegments.slice(0, -1).join('/')
+    const itemParent = itemSegments.slice(0, -1).join('/')
+    if (currentParent === itemParent && currentSegments.length >= itemSegments.length) return true
+  }
+  return false
+}
+
 watch(() => props.open, async (open) => {
   panelVisible.value = open
   if (open) {
     expandParentsOfActiveItem()
     if (props.navigateOnOpen) {
       const target = initialItem()
-      if (target && routePath(target.to) !== route.path) await router.push(target.to)
+      if (target && !isRouteMatchingItem(route.path, target)) await router.push(target.to)
     }
   }
 }, { immediate: true })

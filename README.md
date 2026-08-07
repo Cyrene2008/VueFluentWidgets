@@ -41,36 +41,56 @@ import { FluentButton, FluentMediaPlayer } from 'vue-fluent-widgets'
 
 组件库包含 TypeScript 类型声明，`vue` 作为 peer dependency 由应用提供；样式通过 `vue-fluent-widgets/style.css` 引入。
 
+## 组件文档
+
+| 语言 | 文档 |
+|---|---|
+| 中文 | [COMPONENTS.md](./COMPONENTS.md) |
+| English | [COMPONENTS_EN.md](./COMPONENTS_EN.md) |
+
+包含所有公开组件的 Props、Events、Slots 和示例代码。
+
 ## 主题
 
-默认主题是项目的桃粉主题。应用只需设置一个变量即可统一修改强调色，其余状态色会自动派生：
+默认使用 Fluent Design 标准蓝色 `#0078d4` 和中性灰背景，开箱即用：
+
+```vue
+<FluentButton variant="primary">按钮</FluentButton>
+```
+
+使用蜜桃粉预设主题，需在根元素添加 `.peach` 类：
+
+```vue
+<html class="peach">
+  <FluentButton variant="primary">按钮</FluentButton>
+</html>
+```
+
+或通过 FluentTheme 组件：
+
+```vue
+<FluentTheme class="peach" theme="system">
+  <App />
+</FluentTheme>
+```
+
+自定义 Accent 色：
 
 ```css
 :root {
   --fluent-accent: #6b69d6;
 }
-
 ```
 
-使用 Windows / 浏览器系统强调色：
+使用系统强调色：
 
 ```vue
 <FluentTheme accent-color="system">
   <App />
 </FluentTheme>
-
 ```
 
-使用 Fluent Design 标准蓝色及中性背景预设：
-
-```vue
-<FluentTheme class="fluent" theme="system">
-  <App />
-</FluentTheme>
-
-```
-
-`theme` 支持 `system`、`light` 和 `dark`。也可以在任意容器上添加 `.fluent`、`.dark` 或 `.theme-dark`。
+`theme` 支持 `system`、`light` 和 `dark`。FluentTheme 默认材质为 `acrylic`。
 
 ## 媒体播放器
 
