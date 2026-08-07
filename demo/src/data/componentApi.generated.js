@@ -5899,8 +5899,8 @@ export const generatedComponentApi = {
           "String"
         ],
         "required": false,
-        "default": "'solid'",
-        "defaultValue": "solid",
+        "default": "'acrylic'",
+        "defaultValue": "acrylic",
         "values": []
       },
       {
