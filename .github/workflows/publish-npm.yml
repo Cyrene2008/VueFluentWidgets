@@ -43,7 +43,7 @@ jobs:
 
       - name: Set version
         working-directory: packages/vue-fluent-widgets
-        run: npm version "${{ inputs.version }}" --no-git-tag-version
+        run: npm version "${{ inputs.version }}" --no-git-tag-version --allow-same-version
 
       - name: Build library
         run: pnpm -C packages/vue-fluent-widgets build
