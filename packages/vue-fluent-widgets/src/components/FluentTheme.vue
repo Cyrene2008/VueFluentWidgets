@@ -13,7 +13,7 @@ import { computed, provide, watch } from 'vue'
 
 const props = defineProps({
   theme: { type: String, default: 'system' },
-  material: { type: String, default: 'solid' },
+  material: { type: String, default: 'acrylic' },
   accentColor: { type: String, default: '' },
   locale: { type: String, default: 'zh-CN' }
 })
