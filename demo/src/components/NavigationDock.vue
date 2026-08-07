@@ -232,11 +232,28 @@ const secondaryItems = computed(() => {
 
 const containsRoute = (item, path) => {
   if (item.to && (path === item.to || path.startsWith(`${item.to}/`))) return true
-  return item.children?.some(child => containsRoute(child, path)) || false
+  if (item.to) {
+    const currentSegments = path.split('/').filter(Boolean)
+    const itemSegments = item.to.split('/').filter(Boolean)
+    if (currentSegments.length > 0 && itemSegments.length > 0) {
+      const currentParent = currentSegments.slice(0, -1).join('/')
+      const itemParent = itemSegments.slice(0, -1).join('/')
+      if (currentParent === itemParent && currentSegments.length >= itemSegments.length) return true
+    }
+  }
+  if (item.children?.length) {
+    return item.children.some(child => containsRoute(child, path))
+  }
+  return false
 }
 
 const isItemActive = item => containsRoute(item, route.path)
-const menuForRoute = path => props.items.find(item => item.children?.length && containsRoute(item, path))?.id || null
+const menuForRoute = path => {
+  const direct = props.items.find(item => item.children?.length && containsRoute(item, path))
+  if (direct) return direct.id
+  if (path.startsWith('/docs/component/')) return props.items.find(item => item.id === 'docs')?.id || null
+  return null
+}
 
 const openSecondary = item => {
   activeSecondary.value = activeSecondary.value === item.id ? null : item.id
