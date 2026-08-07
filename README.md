@@ -1,8 +1,12 @@
 # Vue Fluent Widgets
 
-适用于 Vue 3 的 Fluent Design 组件库。
+适用于 Vue 3 的 Fluent Design 组件库
 
 [在线 Demo 演示](https://fluent.cyrene.hk)
+
+> [!CAUTION]
+> Made with ❤️ by Cyrene2008.
+> 希望这个组件库能让你在构建 Windows11 风格应用时，少加一点班，少熬一点夜，少烧一点token，多一点摸鱼的时间♪
 
 ## 安装
 
