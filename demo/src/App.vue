@@ -85,8 +85,7 @@ const applyTheme = () => {
   const root = document.documentElement
   root.classList.toggle('theme-dark', isDark.value)
   root.classList.toggle('theme-light', !isDark.value)
-  root.style.setProperty('--fluent-accent', '#ea5ec1')
-  root.style.setProperty('--text-on-accent', '#ffffff')
+  root.classList.add('peach')
 }
 
 const setThemeMode = mode => { themeMode.value = mode }
@@ -224,57 +223,6 @@ body {
   width: 100%;
   height: 100vh;
   min-height: 0;
-}
-
-:root.theme-dark,
-:root.theme-light,
-.demo-app.theme-dark,
-.demo-app.theme-light {
-  --accent: var(--fluent-accent);
-  --accent-light: color-mix(in srgb, var(--accent), white 34%);
-  --accent-dark: color-mix(in srgb, var(--accent), black 18%);
-  --accent-hover: color-mix(in srgb, var(--accent), black 12%);
-  --accent-200: color-mix(in srgb, var(--accent), white 72%);
-  --accent-50: color-mix(in srgb, var(--accent), white 92%);
-  --text-on-accent: #ffffff;
-}
-
-:root.theme-light,
-.demo-app.theme-light {
-  --bg-base: #fdf5fa;
-  --bg-card: rgba(255, 245, 252, .75);
-  --bg-card-solid: #fff8fc;
-  --bg-hover: #fdf0f6;
-  --bg-acrylic: rgba(255, 240, 248, .82);
-  --bg-mica: linear-gradient(135deg, rgba(255, 240, 248, .97), rgba(253, 245, 250, .97));
-  --bg-mica-alt: linear-gradient(135deg, #f9eaf3, #f6e0ed);
-  --bg-code: #f8f3f6;
-  --text-primary: #3d1a2e;
-  --text-secondary: #6b3a55;
-  --text-muted: #a16d88;
-  --text-code: #3d1a2e;
-  --border-default: rgba(234, 94, 193, .1);
-  --border-subtle: rgba(234, 94, 193, .06);
-  --border-strong: rgba(234, 94, 193, .2);
-}
-
-:root.theme-dark,
-.demo-app.theme-dark {
-  --bg-base: #2d1a25;
-  --bg-card: rgba(50, 30, 42, .75);
-  --bg-card-solid: #3a2232;
-  --bg-hover: #4a2a3e;
-  --bg-acrylic: rgba(40, 22, 35, .82);
-  --bg-mica: linear-gradient(135deg, rgba(40, 22, 35, .95), rgba(30, 15, 25, .95));
-  --bg-mica-alt: linear-gradient(135deg, #402535, #321d2a);
-  --bg-code: #24131e;
-  --text-primary: #fce4f0;
-  --text-secondary: #d4a0bc;
-  --text-muted: #a87590;
-  --text-code: #f7dce9;
-  --border-default: rgba(234, 94, 193, .15);
-  --border-subtle: rgba(234, 94, 193, .08);
-  --border-strong: rgba(234, 94, 193, .25);
 }
 
 .demo-main {
