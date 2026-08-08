@@ -249,9 +249,15 @@ const containsRoute = (item, path) => {
 
 const isItemActive = item => containsRoute(item, route.path)
 const menuForRoute = path => {
-  const direct = props.items.find(item => item.children?.length && containsRoute(item, path))
-  if (direct) return direct.id
-  if (path.startsWith('/docs/component/')) return props.items.find(item => item.id === 'docs')?.id || null
+  for (const item of props.items) {
+    if (item.children?.length) {
+      for (const child of item.children) {
+        if (child.to && containsRoute(child, path)) {
+          return item.id
+        }
+      }
+    }
+  }
   return null
 }
 
