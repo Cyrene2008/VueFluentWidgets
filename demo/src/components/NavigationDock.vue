@@ -232,15 +232,7 @@ const secondaryItems = computed(() => {
 
 const containsRoute = (item, path) => {
   if (item.to && (path === item.to || path.startsWith(`${item.to}/`))) return true
-  if (item.to) {
-    const currentSegments = path.split('/').filter(Boolean)
-    const itemSegments = item.to.split('/').filter(Boolean)
-    if (currentSegments.length > 0 && itemSegments.length > 0) {
-      const currentParent = currentSegments.slice(0, -1).join('/')
-      const itemParent = itemSegments.slice(0, -1).join('/')
-      if (currentParent === itemParent && currentSegments.length >= itemSegments.length) return true
-    }
-  }
+  if (item.to === '/docs/components' && path.startsWith('/docs/component/')) return true
   if (item.children?.length) {
     return item.children.some(child => containsRoute(child, path))
   }
