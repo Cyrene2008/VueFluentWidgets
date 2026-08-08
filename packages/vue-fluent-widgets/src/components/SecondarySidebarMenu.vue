@@ -141,19 +141,17 @@ const goBackWithinApp = () => {
 
 const routePath = target => target ? router.resolve(target).path : ''
 
+const isRouteMatchingItem = (path, item) => {
+  if (!item.to) return false
+  const itemPath = routePath(item.to)
+  return path === itemPath
+    || path.startsWith(`${itemPath}/`)
+    || (itemPath === '/docs/components' && path.startsWith('/docs/component/'))
+}
+
 const findItemByRoute = (path, items = props.items) => {
   for (const item of items) {
-    if (item.to) {
-      const itemPath = routePath(item.to)
-      if (path === itemPath || path.startsWith(`${itemPath}/`)) return item
-      const currentSegments = path.split('/').filter(Boolean)
-      const itemSegments = itemPath.split('/').filter(Boolean)
-      if (currentSegments.length > 0 && itemSegments.length > 0) {
-        const currentParent = currentSegments.slice(0, -1).join('/')
-        const itemParent = itemSegments.slice(0, -1).join('/')
-        if (currentParent === itemParent && currentSegments.length >= itemSegments.length) return item
-      }
-    }
+    if (isRouteMatchingItem(path, item)) return item
     if (item.children) {
       const found = findItemByRoute(path, item.children)
       if (found) return found
@@ -164,17 +162,7 @@ const findItemByRoute = (path, items = props.items) => {
 
 const isItemActive = (item) => {
   const currentPath = route.path
-  const itemPath = routePath(item.to)
-  if (item.to && (currentPath === itemPath || currentPath.startsWith(`${itemPath}/`))) return true
-  if (item.to) {
-    const currentSegments = currentPath.split('/').filter(Boolean)
-    const itemSegments = itemPath.split('/').filter(Boolean)
-    if (currentSegments.length > 0 && itemSegments.length > 0) {
-      const currentParent = currentSegments.slice(0, -1).join('/')
-      const itemParent = itemSegments.slice(0, -1).join('/')
-      if (currentParent === itemParent && currentSegments.length >= itemSegments.length) return true
-    }
-  }
+  if (isRouteMatchingItem(currentPath, item)) return true
   return item.children?.some(child => isItemActive(child)) || false
 }
 
@@ -233,20 +221,6 @@ const expandParentsOfActiveItem = () => {
 
 const goBack = () => {
   emit('back')
-}
-
-const isRouteMatchingItem = (path, item) => {
-  if (!item.to) return false
-  const itemPath = routePath(item.to)
-  if (path === itemPath || path.startsWith(`${itemPath}/`)) return true
-  const currentSegments = path.split('/').filter(Boolean)
-  const itemSegments = itemPath.split('/').filter(Boolean)
-  if (currentSegments.length > 0 && itemSegments.length > 0) {
-    const currentParent = currentSegments.slice(0, -1).join('/')
-    const itemParent = itemSegments.slice(0, -1).join('/')
-    if (currentParent === itemParent && currentSegments.length >= itemSegments.length) return true
-  }
-  return false
 }
 
 watch(() => props.open, async (open) => {
