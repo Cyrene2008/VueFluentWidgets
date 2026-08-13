@@ -27,8 +27,10 @@ jobs:
         with:
           fetch-depth: 4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -39,17 +41,17 @@ jobs:
         run: npm install --global npm@11
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: bun install --frozen-lockfile
 
       - name: Set version
         working-directory: packages/vue-fluent-widgets
         run: npm version "${{ inputs.version }}" --no-git-tag-version --allow-same-version
 
       - name: Build library
-        run: pnpm -C packages/vue-fluent-widgets build
+        run: bun --cwd packages/vue-fluent-widgets build
 
       - name: Run tests
-        run: pnpm test
+        run: bun run test
 
       - name: Publish to npm (Trusted Publishing / OIDC)
         working-directory: packages/vue-fluent-widgets

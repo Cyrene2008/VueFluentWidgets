@@ -26,8 +26,10 @@ jobs:
         with:
           fetch-depth: 4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -35,7 +37,7 @@ jobs:
           node-version: '22'
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: bun install --frozen-lockfile
 
       - name: Set version
         working-directory: packages/vue-fluent-widgets
@@ -47,10 +49,10 @@ jobs:
           node -e "const fs=require('fs');const f='./package.json';const p=JSON.parse(fs.readFileSync(f,'utf8'));p.name='@cyrene2008/vue-fluent-widgets';fs.writeFileSync(f,JSON.stringify(p,null,2)+'\n')"
 
       - name: Build library
-        run: pnpm -C packages/vue-fluent-widgets build
+        run: bun --cwd packages/vue-fluent-widgets build
 
       - name: Run tests
-        run: pnpm test
+        run: bun run test
 
       - name: Configure npm for GitHub Packages
         working-directory: packages/vue-fluent-widgets

@@ -5,23 +5,28 @@
   "author": "Cyrene2008 <https://github.com/Cyrene2008>",
   "type": "module",
   "scripts": {
-    "dev": "pnpm -C demo dev",
-    "build": "pnpm -C packages/vue-fluent-widgets build",
-    "build:demo": "pnpm -C demo build",
+    "dev": "bun --cwd demo dev",
+    "build": "bun --cwd packages/vue-fluent-widgets build",
+    "build:demo": "bun --cwd demo build",
     "docs:generate": "node scripts/generate-component-api.mjs",
     "docs:check": "node scripts/generate-component-api.mjs --check",
-    "preview": "pnpm -C demo preview",
+    "preview": "bun --cwd demo preview",
     "test": "echo \"No tests specified\" && exit 0"
   },
   "keywords": ["vue", "fluent", "design-system", "winui3", "components"],
   "license": "MIT",
+  "workspaces": [
+    "packages/*",
+    "demo"
+  ],
   "engines": {
     "node": ">=18.0.0"
   },
-  "packageManager": "pnpm@9.0.0",
+  "packageManager": "bun@1.3.14",
   "devDependencies": {
     "@babel/parser": "^7.28.0",
     "@vue/compiler-dom": "^3.5.0",
     "@vue/compiler-sfc": "^3.5.0"
   }
 }
+

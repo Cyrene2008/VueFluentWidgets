@@ -1,11 +1,13 @@
 {
+  "packageManager": "bun@1.3.14",
+  
   "name": "vue-fluent-widgets-demo",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "predev": "pnpm -w docs:generate",
+    "predev": "bun --cwd .. run docs:generate",
     "dev": "vite",
-    "prebuild": "pnpm -w docs:generate",
+    "prebuild": "bun --cwd .. run docs:generate",
     "build": "vite build",
     "preview": "vite preview"
   },
@@ -22,3 +24,4 @@
     "vite": "^6.3.5"
   }
 }
+
