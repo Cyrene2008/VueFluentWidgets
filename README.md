@@ -132,6 +132,21 @@ onMounted(() => {
 </template>
 ```
 
+## 本地开发
+
+在项目根目录执行以下命令，即可快速启动 Demo 开发服务器（需先安装 [bun](https://bun.sh)）：
+
+```bash
+node scripts/dev.js
+```
+
+脚本会自动完成以下步骤：
+
+1. 检查 `packages/vue-fluent-widgets` 依赖是否安装，缺失时自动执行 `bun install`
+2. 检查组件库构建产物（`dist`）是否存在，缺失时自动执行构建
+3. 检查 `demo` 依赖是否安装，缺失时自动执行 `bun install`
+4. 启动 Demo 开发服务器
+
 ## ⚖️ 许可证与署名
 
 本项目基于 [MIT License](./LICENSE) 开源。
