@@ -29,9 +29,9 @@
           <span class="footer-org-name">星海昔涟 StarCyrene</span>
           <span>「以爱为因，星光成涟」♪</span>
           <span>Made with Love, Starlight Ripples On♪</span>
-          <a href="https://cyrene.hk" target="_blank" rel="noopener noreferrer" class="footer-org-site">
+          <a href="https://star.cyrene.hk" target="_blank" rel="noopener noreferrer" class="footer-org-site">
             <FluentIcon icon="code-20-regular" :width="20" />
-             <span>{{ text('团队官网', 'Team website') }} cyrene.hk</span>
+             <span>{{ text('团队官网', 'Team website') }} star.cyrene.hk</span>
           </a>
         </div>
       </div>
