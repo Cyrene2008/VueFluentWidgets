@@ -48,7 +48,14 @@ const emit = defineEmits(['update:modelValue', 'select', 'open', 'close'])
 
 const wrapperRef = ref(null)
 const flyoutRef = ref(null)
-const isOpen = ref(false)
+const localIsOpen = ref(false)
+const isOpen = computed({
+  get: () => props.modelValue ?? localIsOpen.value,
+  set: value => {
+    localIsOpen.value = value
+    emit('update:modelValue', value)
+  }
+})
 const position = ref({ top: 0, left: 0 })
 
 const flyoutStyle = computed(() => ({
@@ -119,10 +126,14 @@ const onKeyDown = (event) => {
 
 onMounted(() => {
   document.addEventListener('keydown', onKeyDown)
+  window.addEventListener('resize', updatePosition)
+  window.addEventListener('scroll', updatePosition, true)
 })
 
 onUnmounted(() => {
   document.removeEventListener('keydown', onKeyDown)
+  window.removeEventListener('resize', updatePosition)
+  window.removeEventListener('scroll', updatePosition, true)
 })
 </script>
 

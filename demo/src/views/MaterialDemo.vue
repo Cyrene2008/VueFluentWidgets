@@ -20,9 +20,9 @@
           </div>
           
           <div class="material-card">
-            <FluentCard material="acrylic" class="demo-card acrylic-bg">
+            <FluentCard material="acrylic" class="demo-card">
               <h3>Acrylic</h3>
-              <p>半透明模糊效果</p>
+              <p>半透明模糊 + 噪点纹理</p>
             </FluentCard>
             <span class="material-label">Acrylic</span>
           </div>
@@ -30,16 +30,16 @@
           <div class="material-card">
             <FluentCard material="mica" class="demo-card mica-bg">
               <h3>Mica</h3>
-              <p>使用壁纸颜色</p>
+              <p>壁纸着色，无模糊</p>
             </FluentCard>
             <span class="material-label">Mica</span>
           </div>
           
           <div class="material-card">
-            <FluentLiquidGlass variant="light" class="demo-card">
+            <FluentMaterialBackdrop material="liquid-glass" class="demo-card liquid-bg">
               <h3>Liquid Glass</h3>
-              <p>液态玻璃效果</p>
-            </FluentLiquidGlass>
+              <p>折射 + 色散 + 动态高光</p>
+            </FluentMaterialBackdrop>
             <span class="material-label">Liquid Glass</span>
           </div>
         </div>
@@ -54,25 +54,25 @@
         <div class="glass-variants">
           <div class="glass-variant-item">
             <img :src="asset('images/Cyrene01.webp')" alt="示例图片" class="glass-bg-image" />
-            <FluentLiquidGlass variant="light" class="glass-overlay">
-              <h3>Light</h3>
-              <p>浅色液态玻璃</p>
+            <FluentLiquidGlass variant="clear" class="glass-overlay">
+              <h3>Clear</h3>
+              <p>透明折射玻璃</p>
             </FluentLiquidGlass>
           </div>
           
           <div class="glass-variant-item">
             <img :src="asset('images/Cyrene02.webp')" alt="示例图片" class="glass-bg-image" />
-            <FluentLiquidGlass variant="dark" class="glass-overlay">
-              <h3>Dark</h3>
-              <p>深色液态玻璃</p>
+            <FluentLiquidGlass variant="light" class="glass-overlay">
+              <h3>Light</h3>
+              <p>浅色液态玻璃 · 移动鼠标看高光</p>
             </FluentLiquidGlass>
           </div>
           
           <div class="glass-variant-item">
             <img :src="asset('images/Cyrene03.webp')" alt="示例图片" class="glass-bg-image" />
-            <FluentLiquidGlass variant="colored" class="glass-overlay">
-              <h3>Colored</h3>
-              <p>彩色液态玻璃</p>
+            <FluentLiquidGlass variant="accent" accent-color="#ea5ec1" class="glass-overlay">
+              <h3>Accent</h3>
+              <p>主题色液态玻璃</p>
             </FluentLiquidGlass>
           </div>
         </div>
@@ -118,6 +118,7 @@
             <li><code>dark</code> - 深色液态玻璃</li>
             <li><code>colored</code> - 彩色渐变液态玻璃</li>
             <li><code>accent</code> - 主题色液态玻璃</li>
+            <li><code>clear</code> - 近乎透明的折射玻璃</li>
           </ul>
           
           <h3>3. 属性</h3>
@@ -125,6 +126,10 @@
             <li><code>blur</code> - 模糊程度 (默认: 20)</li>
             <li><code>opacity</code> - 透明度 (默认: 0.7)</li>
             <li><code>animated</code> - 是否启用动画 (默认: true)</li>
+            <li><code>noise</code> - 噪点纹理 (默认: true)</li>
+            <li><code>dispersion</code> - 边缘色散 (默认: true)</li>
+            <li><code>pointer-tracking</code> - 高光跟随指针 (默认: true)</li>
+            <li><code>accent-color</code> - accent 变体主题色</li>
           </ul>
         </div>
       </template>
@@ -137,6 +142,7 @@ import { ref } from 'vue'
 import { 
   FluentLiquidGlass, 
   FluentCard, 
+  FluentMaterialBackdrop,
   FluentSettingsCard, 
   FluentToggle, 
   FluentControlExample 
@@ -149,18 +155,21 @@ const asset = path => `${import.meta.env.BASE_URL}${path}`
 const comparisonCode = `<FluentCard material="solid">Solid</FluentCard>
 <FluentCard material="acrylic">Acrylic</FluentCard>
 <FluentCard material="mica">Mica</FluentCard>
-<FluentLiquidGlass variant="light">Liquid Glass</FluentLiquidGlass>`
+<FluentMaterialBackdrop material="liquid-glass">
+  Liquid Glass
+</FluentMaterialBackdrop>`
 
-const glassCode = `<FluentLiquidGlass variant="light">
+const glassCode = `<FluentLiquidGlass variant="clear">
+  <h3>Clear</h3>
+</FluentLiquidGlass>
+
+<FluentLiquidGlass variant="light" :pointer-tracking="true">
   <h3>Light</h3>
+  <!-- 移动鼠标，高光会跟随 -->
 </FluentLiquidGlass>
 
-<FluentLiquidGlass variant="dark">
-  <h3>Dark</h3>
-</FluentLiquidGlass>
-
-<FluentLiquidGlass variant="colored">
-  <h3>Colored</h3>
+<FluentLiquidGlass variant="accent" accent-color="#ea5ec1">
+  <h3>Accent</h3>
 </FluentLiquidGlass>`
 
 const cardCode = `<FluentLiquidGlass variant="light">
@@ -240,13 +249,12 @@ const usageCode = `// 基础用法
   color: var(--text-secondary);
 }
 
-.acrylic-bg {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(20px);
-}
-
 .mica-bg {
   background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%);
+}
+
+.liquid-bg {
+  padding: 20px;
 }
 
 .material-label {

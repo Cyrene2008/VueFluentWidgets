@@ -2,7 +2,7 @@
   <div class="fluent-flyout-wrapper" ref="wrapperRef">
     <div class="flyout-trigger" @click="toggle">
       <slot name="trigger">
-        <FluentButton @click="toggle">打开弹出框</FluentButton>
+        <FluentButton>打开弹出框</FluentButton>
       </slot>
     </div>
     

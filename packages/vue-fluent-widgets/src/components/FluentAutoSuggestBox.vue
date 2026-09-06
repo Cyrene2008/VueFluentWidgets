@@ -1,7 +1,7 @@
 <template>
   <div class="fluent-auto-suggest-box" :class="{ 'is-open': isOpen }">
     <div v-if="label" class="auto-suggest-label">{{ label }}</div>
-    <div class="auto-suggest-container">
+    <div ref="containerRef" class="auto-suggest-container">
       <div class="auto-suggest-input-wrapper">
         <FluentIcon v-if="icon" :icon="icon" :width="16" class="auto-suggest-icon" />
         <input
@@ -27,8 +27,9 @@
         </button>
       </div>
       
-      <Transition name="dropdown">
-        <div v-if="isOpen && filteredSuggestions.length > 0" class="auto-suggest-dropdown">
+      <Teleport to="body">
+        <Transition name="dropdown" @after-enter="updateDropdownPosition">
+        <div v-if="isOpen && filteredSuggestions.length > 0" ref="dropdownRef" class="auto-suggest-dropdown" :style="dropdownStyle">
           <div 
             v-for="(suggestion, index) in filteredSuggestions" 
             :key="index"
@@ -44,6 +45,7 @@
           </div>
         </div>
       </Transition>
+      </Teleport>
     </div>
     <div v-if="error" class="auto-suggest-error">{{ error }}</div>
     <div v-if="description" class="auto-suggest-description">{{ description }}</div>
@@ -51,7 +53,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, nextTick } from 'vue'
+import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
 import FluentIcon from './FluentIcon.vue'
 
 const props = defineProps({
@@ -71,6 +73,9 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue', 'change', 'select', 'search', 'focus', 'blur'])
 
 const inputRef = ref(null)
+const containerRef = ref(null)
+const dropdownRef = ref(null)
+const dropdownStyle = ref({ top: '-10000px', left: '-10000px' })
 const isOpen = ref(false)
 const highlightedIndex = ref(-1)
 
@@ -107,8 +112,33 @@ const onInput = (event) => {
 }
 
 const onFocus = (event) => {
+  setEstimatedDropdownPosition()
   isOpen.value = true
+  nextTick(() => requestAnimationFrame(updateDropdownPosition))
   emit('focus', event)
+}
+
+const setEstimatedDropdownPosition = () => {
+  const trigger = containerRef.value?.getBoundingClientRect()
+  if (!trigger) return
+  const margin = 8
+  const height = 210
+  const top = trigger.bottom + height + margin <= window.innerHeight ? trigger.bottom + 4 : Math.max(margin, trigger.top - height - 4)
+  const width = Math.min(Math.max(trigger.width, 220), window.innerWidth - margin * 2)
+  const left = Math.max(margin, Math.min(trigger.left, window.innerWidth - width - margin))
+  dropdownStyle.value = { position: 'fixed', top: `${top}px`, left: `${left}px`, width: `${width}px`, zIndex: 100000 }
+}
+
+const updateDropdownPosition = () => {
+  const trigger = containerRef.value?.getBoundingClientRect()
+  const dropdown = dropdownRef.value
+  if (!trigger || !dropdown) return
+  const margin = 8
+  const height = dropdown.offsetHeight
+  const width = Math.min(dropdown.offsetWidth, window.innerWidth - margin * 2)
+  const top = window.innerHeight - trigger.bottom - margin >= height ? trigger.bottom + 4 : Math.max(margin, trigger.top - height - 4)
+  const left = Math.max(margin, Math.min(trigger.left, window.innerWidth - width - margin))
+  dropdownStyle.value = { position: 'fixed', top: `${top}px`, left: `${left}px`, width: `${width}px`, zIndex: 100000 }
 }
 
 const onBlur = (event) => {
@@ -161,6 +191,16 @@ const clear = () => {
 
 watch(() => props.modelValue, () => {
   highlightedIndex.value = -1
+})
+
+onMounted(() => {
+  window.addEventListener('resize', updateDropdownPosition)
+  window.addEventListener('scroll', updateDropdownPosition, true)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', updateDropdownPosition)
+  window.removeEventListener('scroll', updateDropdownPosition, true)
 })
 </script>
 

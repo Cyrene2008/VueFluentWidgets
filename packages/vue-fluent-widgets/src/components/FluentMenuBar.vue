@@ -8,6 +8,7 @@
     >
       <button
         class="menu-bar-button"
+        :ref="element => setButtonRef(index, element)"
         type="button"
         role="menuitem"
         :aria-haspopup="item.children && item.children.length > 0"
@@ -20,8 +21,9 @@
         <span class="menu-bar-label">{{ item.label }}</span>
       </button>
       
-      <Transition name="dropdown">
-        <div v-if="openIndex === index && item.children && item.children.length > 0" class="menu-bar-dropdown">
+      <Teleport to="body">
+      <Transition name="dropdown" @after-enter="updatePosition">
+        <div v-if="openIndex === index && item.children && item.children.length > 0" :ref="setDropdownRef" class="menu-bar-dropdown" :style="dropdownStyle">
           <template v-for="(child, childIndex) in item.children" :key="childIndex">
             <div v-if="child.type === 'separator'" class="menu-separator"></div>
             <button
@@ -38,12 +40,13 @@
           </template>
         </div>
       </Transition>
+      </Teleport>
     </div>
   </nav>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, nextTick } from 'vue'
 import FluentIcon from './FluentIcon.vue'
 
 const props = defineProps({
@@ -53,20 +56,53 @@ const props = defineProps({
 const emit = defineEmits(['item-click'])
 
 const openIndex = ref(null)
+const buttonRefs = []
+const dropdownRef = ref(null)
+const dropdownStyle = ref({ top: '-10000px', left: '-10000px' })
 let closeTimer = null
+
+const setButtonRef = (index, element) => {
+  if (element) buttonRefs[index] = element
+}
+const setDropdownRef = element => {
+  dropdownRef.value = element
+}
 
 const toggleMenu = (index) => {
   if (openIndex.value === index) {
     openIndex.value = null
   } else {
     openIndex.value = index
+    setEstimatedPosition(index)
+    nextTick(() => requestAnimationFrame(updatePosition))
   }
 }
 
 const onItemHover = (index) => {
   if (openIndex.value !== null) {
     openIndex.value = index
+    setEstimatedPosition(index)
+    nextTick(() => requestAnimationFrame(updatePosition))
   }
+}
+
+const setEstimatedPosition = index => {
+  const trigger = buttonRefs[index]?.getBoundingClientRect()
+  if (!trigger) return
+  dropdownStyle.value = { position: 'fixed', top: `${trigger.bottom + 4}px`, left: `${Math.max(8, trigger.left)}px`, zIndex: 100000 }
+}
+
+const updatePosition = () => {
+  if (openIndex.value === null) return
+  const trigger = buttonRefs[openIndex.value]?.getBoundingClientRect()
+  const dropdown = dropdownRef.value
+  if (!trigger || !dropdown) return
+  const margin = 8
+  const width = Math.min(dropdown.offsetWidth, window.innerWidth - margin * 2)
+  const height = dropdown.offsetHeight
+  const top = window.innerHeight - trigger.bottom - margin >= height ? trigger.bottom + 4 : Math.max(margin, trigger.top - height - 4)
+  const left = Math.max(margin, Math.min(trigger.left, window.innerWidth - width - margin))
+  dropdownStyle.value = { position: 'fixed', top: `${top}px`, left: `${left}px`, zIndex: 100000 }
 }
 
 const onItemClick = (item) => {
@@ -80,17 +116,21 @@ const closeMenu = () => {
 }
 
 const onClickOutside = (event) => {
-  if (!event.target.closest('.fluent-menu-bar')) {
+  if (!event.target.closest('.fluent-menu-bar') && !event.target.closest('.menu-bar-dropdown')) {
     closeMenu()
   }
 }
 
 onMounted(() => {
   document.addEventListener('click', onClickOutside)
+  window.addEventListener('resize', updatePosition)
+  window.addEventListener('scroll', updatePosition, true)
 })
 
 onUnmounted(() => {
   document.removeEventListener('click', onClickOutside)
+  window.removeEventListener('resize', updatePosition)
+  window.removeEventListener('scroll', updatePosition, true)
   if (closeTimer) {
     clearTimeout(closeTimer)
   }

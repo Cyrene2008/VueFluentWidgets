@@ -7,6 +7,7 @@ import FluentBackToTop from './components/FluentBackToTop.vue'
 import FluentBreadcrumbBar from './components/FluentBreadcrumbBar.vue'
 import FluentButton from './components/FluentButton.vue'
 import FluentCalendarDatePicker from './components/FluentCalendarDatePicker.vue'
+import FluentCalendarView from './components/FluentCalendarView.vue'
 import FluentCanvas from './components/FluentCanvas.vue'
 import FluentCard from './components/FluentCard.vue'
 import FluentCheckBox from './components/FluentCheckBox.vue'
@@ -14,6 +15,7 @@ import FluentCol from './components/FluentCol.vue'
 import FluentColorPicker from './components/FluentColorPicker.vue'
 import FluentComboBox from './components/FluentComboBox.vue'
 import FluentCommandBar from './components/FluentCommandBar.vue'
+import FluentCommandBarFlyout from './components/FluentCommandBarFlyout.vue'
 import FluentContentDialog from './components/FluentContentDialog.vue'
 import FluentControlExample from './components/FluentControlExample.vue'
 import FluentDatePicker from './components/FluentDatePicker.vue'
@@ -42,9 +44,11 @@ import FluentItemsView from './components/FluentItemsView.vue'
 import FluentListBox from './components/FluentListBox.vue'
 import FluentLiquidGlass from './components/FluentLiquidGlass.vue'
 import FluentListView from './components/FluentListView.vue'
+import FluentMaterialBackdrop from './components/FluentMaterialBackdrop.vue'
 import FluentMediaPlayer from './components/FluentMediaPlayer.vue'
 import FluentMediaPlayerElement from './components/FluentMediaPlayerElement.vue'
 import FluentMenuBar from './components/FluentMenuBar.vue'
+import FluentMenuFlyout from './components/FluentMenuFlyout.vue'
 import FluentModal from './components/FluentModal.vue'
 import FluentNavigationView from './components/FluentNavigationView.vue'
 import FluentNumberBox from './components/FluentNumberBox.vue'
@@ -60,6 +64,7 @@ import FluentProgressBar from './components/FluentProgressBar.vue'
 import FluentProgressRing from './components/FluentProgressRing.vue'
 import FluentPullToRefresh from './components/FluentPullToRefresh.vue'
 import FluentRadioButton from './components/FluentRadioButton.vue'
+import FluentRadioButtons from './components/FluentRadioButtons.vue'
 import FluentRating from './components/FluentRating.vue'
 import FluentRelativePanel from './components/FluentRelativePanel.vue'
 import FluentRepeatButton from './components/FluentRepeatButton.vue'
@@ -96,6 +101,7 @@ import FluentToast from './components/FluentToast.vue'
 import FluentToggle from './components/FluentToggle.vue'
 import FluentToggleButton from './components/FluentToggleButton.vue'
 import FluentToggleSwitch from './components/FluentToggleSwitch.vue'
+import FluentToggleSplitButton from './components/FluentToggleSplitButton.vue'
 import FluentTooltip from './components/FluentTooltip.vue'
 import FluentTreeView from './components/FluentTreeView.vue'
 import FluentVariableSizedWrapGrid from './components/FluentVariableSizedWrapGrid.vue'
@@ -104,7 +110,7 @@ import FluentWatermark from './components/FluentWatermark.vue'
 import FullscreenToggle from './components/FullscreenToggle.vue'
 import SecondarySidebarMenu from './components/SecondarySidebarMenu.vue'
 import SplashScreen from './components/SplashScreen.vue'
-import { MaterialPresets, getMaterialStyles } from './utils/material'
+import { MaterialPresets, getMaterialStyles, getMaterialClass, getNoiseDataUri, supportsBackdropFilter } from './utils/material'
 
 import './styles/variables.css'
 import './styles/global.css'
@@ -119,6 +125,7 @@ export {
   FluentBreadcrumbBar,
   FluentButton,
   FluentCalendarDatePicker,
+  FluentCalendarView,
   FluentCanvas,
   FluentCard,
   FluentCheckBox,
@@ -126,6 +133,7 @@ export {
   FluentColorPicker,
   FluentComboBox,
   FluentCommandBar,
+  FluentCommandBarFlyout,
   FluentContentDialog,
   FluentControlExample,
   FluentDatePicker,
@@ -154,9 +162,11 @@ export {
   FluentListBox,
   FluentLiquidGlass,
   FluentListView,
+  FluentMaterialBackdrop,
   FluentMediaPlayer,
   FluentMediaPlayerElement,
   FluentMenuBar,
+  FluentMenuFlyout,
   FluentModal,
   FluentNavigationView,
   FluentNumberBox,
@@ -172,6 +182,7 @@ export {
   FluentProgressRing,
   FluentPullToRefresh,
   FluentRadioButton,
+  FluentRadioButtons,
   FluentRating,
   FluentRelativePanel,
   FluentRepeatButton,
@@ -208,6 +219,7 @@ export {
   FluentToggle,
   FluentToggleButton,
   FluentToggleSwitch,
+  FluentToggleSplitButton,
   FluentTooltip,
   FluentTreeView,
   FluentVariableSizedWrapGrid,
@@ -216,6 +228,9 @@ export {
   FullscreenToggle,
   MaterialPresets,
   getMaterialStyles,
+  getMaterialClass,
+  getNoiseDataUri,
+  supportsBackdropFilter,
   SecondarySidebarMenu,
   SplashScreen
 }
@@ -237,14 +252,16 @@ export const install = app => {
     app.component('FluentBackToTop', FluentBackToTop)
     app.component('FluentBreadcrumbBar', FluentBreadcrumbBar)
     app.component('FluentButton', FluentButton)
-    app.component('FluentCalendarDatePicker', FluentCalendarDatePicker)
+     app.component('FluentCalendarDatePicker', FluentCalendarDatePicker)
+     app.component('FluentCalendarView', FluentCalendarView)
     app.component('FluentCanvas', FluentCanvas)
     app.component('FluentCard', FluentCard)
     app.component('FluentCheckBox', FluentCheckBox)
     app.component('FluentCol', FluentCol)
     app.component('FluentColorPicker', FluentColorPicker)
     app.component('FluentComboBox', FluentComboBox)
-    app.component('FluentCommandBar', FluentCommandBar)
+     app.component('FluentCommandBar', FluentCommandBar)
+     app.component('FluentCommandBarFlyout', FluentCommandBarFlyout)
     app.component('FluentContentDialog', FluentContentDialog)
     app.component('FluentControlExample', FluentControlExample)
     app.component('FluentDatePicker', FluentDatePicker)
@@ -273,9 +290,11 @@ export const install = app => {
     app.component('FluentListBox', FluentListBox)
     app.component('FluentLiquidGlass', FluentLiquidGlass)
     app.component('FluentListView', FluentListView)
+    app.component('FluentMaterialBackdrop', FluentMaterialBackdrop)
     app.component('FluentMediaPlayer', FluentMediaPlayer)
     app.component('FluentMediaPlayerElement', FluentMediaPlayerElement)
-    app.component('FluentMenuBar', FluentMenuBar)
+     app.component('FluentMenuBar', FluentMenuBar)
+     app.component('FluentMenuFlyout', FluentMenuFlyout)
     app.component('FluentModal', FluentModal)
     app.component('FluentNavigationView', FluentNavigationView)
     app.component('FluentNumberBox', FluentNumberBox)
@@ -290,7 +309,8 @@ export const install = app => {
     app.component('FluentProgressBar', FluentProgressBar)
     app.component('FluentProgressRing', FluentProgressRing)
     app.component('FluentPullToRefresh', FluentPullToRefresh)
-    app.component('FluentRadioButton', FluentRadioButton)
+     app.component('FluentRadioButton', FluentRadioButton)
+     app.component('FluentRadioButtons', FluentRadioButtons)
     app.component('FluentRating', FluentRating)
     app.component('FluentRelativePanel', FluentRelativePanel)
     app.component('FluentRepeatButton', FluentRepeatButton)
@@ -326,7 +346,8 @@ export const install = app => {
     app.component('FluentToast', FluentToast)
     app.component('FluentToggle', FluentToggle)
     app.component('FluentToggleButton', FluentToggleButton)
-    app.component('FluentToggleSwitch', FluentToggleSwitch)
+     app.component('FluentToggleSwitch', FluentToggleSwitch)
+     app.component('FluentToggleSplitButton', FluentToggleSplitButton)
     app.component('FluentTooltip', FluentTooltip)
     app.component('FluentTreeView', FluentTreeView)
     app.component('FluentVariableSizedWrapGrid', FluentVariableSizedWrapGrid)

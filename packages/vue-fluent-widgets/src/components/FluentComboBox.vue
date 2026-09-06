@@ -15,8 +15,9 @@
         <FluentIcon icon="chevron-down-20-regular" :width="16" class="combo-box-chevron" />
       </div>
       
-      <Transition name="dropdown">
-        <div v-if="isOpen" class="combo-box-dropdown">
+      <Transition name="dropdown" @after-enter="updateDropdownPosition">
+          <Teleport to="body">
+          <div v-if="isOpen" ref="dropdownRef" class="combo-box-dropdown" :style="dropdownStyle">
           <div class="dropdown-items">
             <div
               v-for="(item, index) in items"
@@ -31,7 +32,8 @@
               </slot>
             </div>
           </div>
-        </div>
+          </div>
+          </Teleport>
       </Transition>
     </div>
     <div v-if="error" class="combo-box-error">{{ error }}</div>
@@ -40,7 +42,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import FluentIcon from './FluentIcon.vue'
 
 const props = defineProps({
@@ -59,6 +61,8 @@ const emit = defineEmits(['update:modelValue', 'change'])
 
 const containerRef = ref(null)
 const inputRef = ref(null)
+const dropdownRef = ref(null)
+const dropdownStyle = ref({ top: '-10000px', left: '-10000px' })
 const isOpen = ref(false)
 const highlightedIndex = ref(-1)
 
@@ -91,10 +95,39 @@ const isSelected = (item) => {
 
 const toggleDropdown = () => {
   if (props.disabled) return
-  isOpen.value = !isOpen.value
+  if (isOpen.value) {
+    isOpen.value = false
+    return
+  }
+  setEstimatedDropdownPosition()
+  isOpen.value = true
   if (isOpen.value) {
     highlightedIndex.value = props.items.findIndex(i => isSelected(i))
+    nextTick(() => requestAnimationFrame(updateDropdownPosition))
   }
+}
+
+const setEstimatedDropdownPosition = () => {
+  const trigger = containerRef.value?.getBoundingClientRect()
+  if (!trigger) return
+  const margin = 8
+  const height = 220
+  const width = Math.min(Math.max(trigger.width, 220), window.innerWidth - margin * 2)
+  const top = window.innerHeight - trigger.bottom - margin >= height ? trigger.bottom + 4 : Math.max(margin, trigger.top - height - 4)
+  const left = Math.max(margin, Math.min(trigger.left, window.innerWidth - width - margin))
+  dropdownStyle.value = { position: 'fixed', top: `${top}px`, left: `${left}px`, width: `${width}px`, zIndex: 100000 }
+}
+
+const updateDropdownPosition = () => {
+  const trigger = containerRef.value?.getBoundingClientRect()
+  const dropdown = dropdownRef.value
+  if (!trigger || !dropdown) return
+  const margin = 8
+  const width = Math.min(dropdown.offsetWidth, window.innerWidth - margin * 2)
+  const height = dropdown.offsetHeight
+  const top = window.innerHeight - trigger.bottom - margin >= height ? trigger.bottom + 4 : Math.max(margin, trigger.top - height - 4)
+  const left = Math.max(margin, Math.min(trigger.left, window.innerWidth - width - margin))
+  dropdownStyle.value = { position: 'fixed', top: `${top}px`, left: `${left}px`, width: `${width}px`, zIndex: 100000 }
 }
 
 const selectItem = (item) => {
@@ -105,17 +138,19 @@ const selectItem = (item) => {
 }
 
 const onClickOutside = (event) => {
-  if (!event.target.closest('.fluent-combo-box')) {
-    isOpen.value = false
-  }
+  if (!containerRef.value?.contains(event.target) && !dropdownRef.value?.contains(event.target)) isOpen.value = false
 }
 
 onMounted(() => {
   document.addEventListener('click', onClickOutside)
+  window.addEventListener('resize', updateDropdownPosition)
+  window.addEventListener('scroll', updateDropdownPosition, true)
 })
 
 onUnmounted(() => {
   document.removeEventListener('click', onClickOutside)
+  window.removeEventListener('resize', updateDropdownPosition)
+  window.removeEventListener('scroll', updateDropdownPosition, true)
 })
 </script>
 

@@ -107,12 +107,14 @@
             </button>
 
             <div v-if="showPlaybackRate" class="control-menu">
-              <button type="button" class="control-button rate-button" aria-label="播放速度" @click="toggleRateMenu">
+               <button ref="rateButtonRef" type="button" class="control-button rate-button" aria-label="播放速度" :aria-expanded="showRateMenu" @click="toggleRateMenu">
                 <span>{{ playbackRateValue }}x</span>
               </button>
-              <div v-if="showRateMenu" class="control-popover rate-options">
-                <button v-for="rate in playbackRates" :key="rate" type="button" :class="{ active: rate === playbackRateValue }" @click="setPlaybackRate(rate)">{{ rate }}x</button>
-              </div>
+              <Teleport to="body">
+               <div v-if="showRateMenu" ref="ratePopoverRef" class="control-popover rate-options" :style="ratePopoverStyle" @pointerdown.stop>
+                 <button v-for="rate in playbackRates" :key="rate" type="button" :class="{ active: rate === playbackRateValue }" @click="setPlaybackRate(rate)">{{ rate }}x</button>
+               </div>
+              </Teleport>
             </div>
 
             <button
@@ -140,15 +142,17 @@
             </button>
 
             <div ref="volumeControlRef" class="control-menu volume-control" @pointerenter="openVolumeOnHover" @pointerleave="scheduleVolumeClose" @focusin="openVolumeMenu" @focusout="scheduleVolumeClose">
-              <button type="button" class="control-button" :aria-label="mutedState ? '取消静音' : '音量'" :aria-expanded="showVolumeMenu" aria-controls="media-volume-popover" @click="toggleVolumeMenu">
-                <FluentIcon :icon="volumeIcon" :width="20" />
-              </button>
-              <div v-if="showVolumeMenu" id="media-volume-popover" class="control-popover volume-popover">
-                <button type="button" class="popover-mute" @click="toggleMute">
+               <button ref="volumeButtonRef" type="button" class="control-button" :aria-label="mutedState ? '取消静音' : '音量'" :aria-expanded="showVolumeMenu" aria-controls="media-volume-popover" @click="toggleVolumeMenu">
+                 <FluentIcon :icon="volumeIcon" :width="20" />
+               </button>
+               <Teleport to="body">
+               <div v-if="showVolumeMenu" id="media-volume-popover" ref="volumePopoverRef" class="control-popover volume-popover" :style="volumePopoverStyle" @pointerenter="cancelVolumeClose" @pointerdown.stop>
+                 <button type="button" class="popover-mute" @click="toggleMute">
                   <FluentIcon :icon="volumeIcon" :width="18" />
                 </button>
                 <input class="volume-slider" type="range" min="0" max="1" step="0.01" :value="mutedState ? 0 : volumeLevel" aria-label="音量" @input="setVolume" />
-              </div>
+               </div>
+               </Teleport>
             </div>
 
             <button v-if="!isAudio" type="button" class="control-button" aria-label="全屏" @click="toggleFullscreen">
@@ -196,6 +200,10 @@ const containerRef = ref(null)
 const rootRef = ref(null)
 const mediaRef = ref(null)
 const volumeControlRef = ref(null)
+const rateButtonRef = ref(null)
+const ratePopoverRef = ref(null)
+const volumeButtonRef = ref(null)
+const volumePopoverRef = ref(null)
 const isPlaying = ref(false)
 const isLoading = ref(true)
 const currentTime = ref(0)
@@ -210,6 +218,8 @@ const loopEnabled = ref(props.loop)
 const playbackRateValue = ref(props.playbackRate)
 const showRateMenu = ref(false)
 const showVolumeMenu = ref(false)
+const ratePopoverStyle = ref({})
+const volumePopoverStyle = ref({})
 const internalAnimationsEnabled = ref(!props.disableAnimations)
 const playbackRates = [0.5, 0.75, 1, 1.25, 1.5, 2]
 let controlsTimer = null
@@ -346,18 +356,25 @@ function setPlaybackRate(rate) {
 function toggleRateMenu() {
   showRateMenu.value = !showRateMenu.value
   showVolumeMenu.value = false
+  if (showRateMenu.value) nextTick(() => updatePopoverPosition(rateButtonRef.value, ratePopoverRef.value, ratePopoverStyle))
 }
 
 function toggleVolumeMenu() {
   if (volumeCloseTimer) clearTimeout(volumeCloseTimer)
   showVolumeMenu.value = !showVolumeMenu.value
   showRateMenu.value = false
+  if (showVolumeMenu.value) nextTick(() => updatePopoverPosition(volumeButtonRef.value, volumePopoverRef.value, volumePopoverStyle))
 }
 
 function openVolumeMenu() {
   if (volumeCloseTimer) clearTimeout(volumeCloseTimer)
   showVolumeMenu.value = true
   showRateMenu.value = false
+  nextTick(() => updatePopoverPosition(volumeButtonRef.value, volumePopoverRef.value, volumePopoverStyle))
+}
+
+function cancelVolumeClose() {
+  if (volumeCloseTimer) clearTimeout(volumeCloseTimer)
 }
 
 function openVolumeOnHover() {
@@ -367,6 +384,25 @@ function openVolumeOnHover() {
 function scheduleVolumeClose() {
   if (volumeCloseTimer) clearTimeout(volumeCloseTimer)
   volumeCloseTimer = setTimeout(() => { showVolumeMenu.value = false }, 220)
+}
+
+function updatePopoverPosition(trigger, popover, styleRef) {
+  const rect = trigger?.getBoundingClientRect()
+  if (!rect || !popover) return
+  const margin = 8
+  const width = Math.min(popover.offsetWidth || 166, window.innerWidth - margin * 2)
+  const height = popover.offsetHeight || 48
+  const openAbove = rect.top >= height + margin + 4 || window.innerHeight - rect.bottom < height + margin
+  const top = openAbove
+    ? Math.max(margin, rect.top - height - 8)
+    : Math.min(window.innerHeight - height - margin, rect.bottom + 8)
+  const left = Math.max(margin, Math.min(rect.right - width, window.innerWidth - width - margin))
+  styleRef.value = { position: 'fixed', top: `${top}px`, left: `${left}px`, bottom: 'auto', zIndex: 100000 }
+}
+
+function updateOpenPopoverPositions() {
+  if (showRateMenu.value) updatePopoverPosition(rateButtonRef.value, ratePopoverRef.value, ratePopoverStyle)
+  if (showVolumeMenu.value) updatePopoverPosition(volumeButtonRef.value, volumePopoverRef.value, volumePopoverStyle)
 }
 
 async function togglePictureInPicture() {
@@ -515,7 +551,8 @@ function onFullscreenChange() {
 }
 
 function onDocumentPointerDown(event) {
-  if (!volumeControlRef.value?.contains(event.target)) showVolumeMenu.value = false
+  if (!volumeControlRef.value?.contains(event.target) && !volumePopoverRef.value?.contains(event.target)) showVolumeMenu.value = false
+  if (!rateButtonRef.value?.contains(event.target) && !ratePopoverRef.value?.contains(event.target)) showRateMenu.value = false
 }
 
 function onDocumentKeydown(event) {
@@ -558,6 +595,8 @@ onMounted(() => {
   document.addEventListener('fullscreenchange', onFullscreenChange)
   document.addEventListener('pointerdown', onDocumentPointerDown)
   document.addEventListener('keydown', onDocumentKeydown)
+  window.addEventListener('resize', updateOpenPopoverPositions)
+  window.addEventListener('scroll', updateOpenPopoverPositions, true)
 })
 onUnmounted(() => {
   mediaRef.value?.pause()
@@ -568,6 +607,8 @@ onUnmounted(() => {
   document.removeEventListener('fullscreenchange', onFullscreenChange)
   document.removeEventListener('pointerdown', onDocumentPointerDown)
   document.removeEventListener('keydown', onDocumentKeydown)
+  window.removeEventListener('resize', updateOpenPopoverPositions)
+  window.removeEventListener('scroll', updateOpenPopoverPositions, true)
 })
 </script>
 

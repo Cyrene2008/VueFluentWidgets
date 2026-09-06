@@ -13,7 +13,7 @@
       <FluentIcon icon="chevron-down-16-regular" :width="16" class="select-chevron" />
     </button>
     <Teleport to="body">
-      <Transition name="dropdown">
+       <Transition name="dropdown" @after-enter="updateDropdownPos">
         <div v-if="open" class="fluent-select-dropdown" :style="dropdownStyle">
           <button
             v-for="opt in options"
@@ -94,6 +94,7 @@ function toggle() {
   if (!open.value) {
     updateDropdownPos()
     open.value = true
+    nextTick(updateDropdownPos)
   } else {
     open.value = false
   }
@@ -118,10 +119,12 @@ function onScroll() {
 onMounted(() => {
   document.addEventListener('click', onClickOutside)
   window.addEventListener('scroll', onScroll, true)
+  window.addEventListener('resize', onScroll)
 })
 onBeforeUnmount(() => {
   document.removeEventListener('click', onClickOutside)
   window.removeEventListener('scroll', onScroll, true)
+  window.removeEventListener('resize', onScroll)
 })
 </script>
 

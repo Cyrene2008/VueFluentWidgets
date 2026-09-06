@@ -2,13 +2,31 @@ import type { App, DefineComponent, Plugin } from 'vue'
 
 export type FluentWidget = DefineComponent
 
-export type MaterialType = 'solid' | 'acrylic' | 'mica' | 'mica-alt' | 'none'
+export type MaterialType = 'solid' | 'acrylic' | 'mica' | 'mica-alt' | 'liquid-glass' | 'none'
 
 export interface MaterialConfig {
   type: MaterialType
+  tintColor?: string
   tintOpacity?: number
+  luminosityColor?: string
   luminosityOpacity?: number
   blurAmount?: number
+  saturate?: number
+  noiseOpacity?: number
+  wallpaper?: string
+  fallbackColor?: string
+}
+
+export interface MaterialPreset {
+  type: MaterialType
+  tintColor: string
+  tintOpacity: number
+  luminosityColor: string
+  luminosityOpacity: number
+  blurAmount: number
+  saturate: number
+  noiseOpacity: number
+  fallbackColor: string
 }
 
 export interface FluentMediaPlayerProps {
@@ -90,6 +108,7 @@ export declare const FluentBackToTop: FluentWidget
 export declare const FluentBreadcrumbBar: FluentWidget
 export declare const FluentButton: FluentWidget
 export declare const FluentCalendarDatePicker: FluentWidget
+export declare const FluentCalendarView: FluentWidget
 export declare const FluentCanvas: FluentWidget
 export declare const FluentCard: FluentWidget
 export declare const FluentCheckBox: FluentWidget
@@ -97,6 +116,7 @@ export declare const FluentCol: FluentWidget
 export declare const FluentColorPicker: FluentWidget
 export declare const FluentComboBox: FluentWidget
 export declare const FluentCommandBar: FluentWidget
+export declare const FluentCommandBarFlyout: FluentWidget
 export declare const FluentContentDialog: FluentWidget
 export declare const FluentControlExample: FluentWidget
 export declare const FluentDatePicker: FluentWidget
@@ -125,11 +145,13 @@ export declare const FluentItemsView: FluentWidget
 export declare const FluentListBox: FluentWidget
 export declare const FluentLiquidGlass: FluentWidget
 export declare const FluentListView: FluentWidget
+export declare const FluentMaterialBackdrop: FluentWidget
 export declare const FluentMediaPlayer: DefineComponent<FluentMediaPlayerProps, {}, {}, {}, {}, {}, {}, FluentMediaPlayerEmits> & {
   new (): FluentMediaPlayerExposed
 }
 export declare const FluentMediaPlayerElement: FluentWidget
 export declare const FluentMenuBar: FluentWidget
+export declare const FluentMenuFlyout: FluentWidget
 export declare const FluentModal: FluentWidget
 export declare const FluentNavigationView: FluentWidget
 export declare const FluentNumberBox: FluentWidget
@@ -145,6 +167,7 @@ export declare const FluentProgressBar: FluentWidget
 export declare const FluentProgressRing: FluentWidget
 export declare const FluentPullToRefresh: FluentWidget
 export declare const FluentRadioButton: FluentWidget
+export declare const FluentRadioButtons: FluentWidget
 export declare const FluentRating: FluentWidget
 export declare const FluentRelativePanel: FluentWidget
 export declare const FluentRepeatButton: FluentWidget
@@ -174,6 +197,7 @@ export declare const FluentTeachingTip: FluentWidget
 export declare const FluentTextBox: FluentWidget
 export declare const FluentTextBlock: FluentWidget
 export declare const FluentTheme: FluentWidget
+export declare const FluentThemeWrapper: FluentWidget
 export declare const FluentTimePicker: FluentWidget
 export declare const FluentTimeline: FluentWidget
 export declare const FluentTitleBar: FluentWidget
@@ -181,14 +205,24 @@ export declare const FluentToast: FluentWidget
 export declare const FluentToggle: FluentWidget
 export declare const FluentToggleButton: FluentWidget
 export declare const FluentToggleSwitch: FluentWidget
+export declare const FluentToggleSplitButton: FluentWidget
 export declare const FluentTooltip: FluentWidget
 export declare const FluentTreeView: FluentWidget
 export declare const FluentVariableSizedWrapGrid: FluentWidget
 export declare const FluentViewbox: FluentWidget
 export declare const FluentWatermark: FluentWidget
 export declare const FullscreenToggle: FluentWidget
-export declare const MaterialPresets: Record<MaterialType, { type: MaterialType; tintOpacity: number; luminosityOpacity: number; blurAmount: number }>
-export declare function getMaterialStyles(material: MaterialType | MaterialConfig): Record<string, string>
+export declare const MaterialPresets: Record<MaterialType, MaterialPreset> & {
+  light: Record<string, Partial<MaterialPreset>>
+  dark: Record<string, Partial<MaterialPreset>>
+}
+export declare function getMaterialStyles(
+  material: MaterialType | MaterialConfig,
+  theme?: 'light' | 'dark'
+): Record<string, string>
+export declare function getMaterialClass(material: MaterialType | MaterialConfig): string
+export declare function getNoiseDataUri(): string
+export declare function supportsBackdropFilter(): boolean
 export declare const SecondarySidebarMenu: FluentWidget
 export declare const SplashScreen: FluentWidget
 export declare const install: (app: App) => void
@@ -204,6 +238,7 @@ declare module 'vue' {
     FluentBreadcrumbBar: typeof FluentBreadcrumbBar
     FluentButton: typeof FluentButton
     FluentCalendarDatePicker: typeof FluentCalendarDatePicker
+    FluentCalendarView: typeof FluentCalendarView
     FluentCanvas: typeof FluentCanvas
     FluentCard: typeof FluentCard
     FluentCheckBox: typeof FluentCheckBox
@@ -211,6 +246,7 @@ declare module 'vue' {
     FluentColorPicker: typeof FluentColorPicker
     FluentComboBox: typeof FluentComboBox
     FluentCommandBar: typeof FluentCommandBar
+    FluentCommandBarFlyout: typeof FluentCommandBarFlyout
     FluentContentDialog: typeof FluentContentDialog
     FluentControlExample: typeof FluentControlExample
     FluentDatePicker: typeof FluentDatePicker
@@ -239,9 +275,11 @@ declare module 'vue' {
     FluentListBox: typeof FluentListBox
     FluentLiquidGlass: typeof FluentLiquidGlass
     FluentListView: typeof FluentListView
+    FluentMaterialBackdrop: typeof FluentMaterialBackdrop
     FluentMediaPlayer: typeof FluentMediaPlayer
     FluentMediaPlayerElement: typeof FluentMediaPlayerElement
     FluentMenuBar: typeof FluentMenuBar
+    FluentMenuFlyout: typeof FluentMenuFlyout
     FluentModal: typeof FluentModal
     FluentNavigationView: typeof FluentNavigationView
     FluentNumberBox: typeof FluentNumberBox
@@ -257,6 +295,7 @@ declare module 'vue' {
     FluentProgressRing: typeof FluentProgressRing
     FluentPullToRefresh: typeof FluentPullToRefresh
     FluentRadioButton: typeof FluentRadioButton
+    FluentRadioButtons: typeof FluentRadioButtons
     FluentRating: typeof FluentRating
     FluentRelativePanel: typeof FluentRelativePanel
     FluentRepeatButton: typeof FluentRepeatButton
@@ -286,6 +325,7 @@ declare module 'vue' {
     FluentTextBox: typeof FluentTextBox
     FluentTextBlock: typeof FluentTextBlock
     FluentTheme: typeof FluentTheme
+    FluentThemeWrapper: typeof FluentThemeWrapper
     FluentTimePicker: typeof FluentTimePicker
     FluentTimeline: typeof FluentTimeline
     FluentTitleBar: typeof FluentTitleBar
@@ -293,6 +333,7 @@ declare module 'vue' {
     FluentToggle: typeof FluentToggle
     FluentToggleButton: typeof FluentToggleButton
     FluentToggleSwitch: typeof FluentToggleSwitch
+    FluentToggleSplitButton: typeof FluentToggleSplitButton
     FluentTooltip: typeof FluentTooltip
     FluentTreeView: typeof FluentTreeView
     FluentVariableSizedWrapGrid: typeof FluentVariableSizedWrapGrid

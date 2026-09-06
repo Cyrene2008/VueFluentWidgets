@@ -1,23 +1,27 @@
 <template>
-  <div class="fluent-tooltip-wrapper" @mouseenter="show" @mouseleave="hide">
+  <div ref="wrapperRef" class="fluent-tooltip-wrapper" @mouseenter="show" @mouseleave="hide" @focusin="show" @focusout="hide">
     <slot></slot>
+    <Teleport to="body">
     <Transition name="tooltip">
       <div 
         v-if="isVisible" 
+        ref="tooltipRef"
         class="fluent-tooltip"
         :class="[`placement-${placement}`]"
         :style="tooltipStyle"
+        role="tooltip"
       >
         <slot name="content">
           <span class="tooltip-text">{{ content }}</span>
         </slot>
       </div>
     </Transition>
+    </Teleport>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, nextTick, onUnmounted } from 'vue'
 
 const props = defineProps({
   content: { type: String, default: '' },
@@ -27,19 +31,33 @@ const props = defineProps({
 })
 
 const isVisible = ref(false)
+const wrapperRef = ref(null)
+const tooltipRef = ref(null)
+const tooltipStyle = ref({ top: '-10000px', left: '-10000px' })
 let showTimer = null
 let hideTimer = null
 
-const tooltipStyle = computed(() => {
-  const style = {}
-  return style
-})
+const updatePosition = () => {
+  const trigger = wrapperRef.value?.getBoundingClientRect()
+  const tooltip = tooltipRef.value
+  if (!trigger || !tooltip) return
+  const margin = 8
+  const width = Math.min(tooltip.offsetWidth, window.innerWidth - margin * 2)
+  const height = tooltip.offsetHeight
+  let top = trigger.top - height - margin
+  let left = trigger.left + (trigger.width - width) / 2
+  if (props.placement === 'bottom') top = trigger.bottom + margin
+  if (props.placement === 'left') { top = trigger.top + (trigger.height - height) / 2; left = trigger.left - width - margin }
+  if (props.placement === 'right') { top = trigger.top + (trigger.height - height) / 2; left = trigger.right + margin }
+  tooltipStyle.value = { position: 'fixed', top: `${Math.max(margin, Math.min(top, window.innerHeight - height - margin))}px`, left: `${Math.max(margin, Math.min(left, window.innerWidth - width - margin))}px`, zIndex: 100000 }
+}
 
 const show = () => {
   if (props.disabled) return
   clearTimeout(hideTimer)
   showTimer = setTimeout(() => {
     isVisible.value = true
+    nextTick(() => requestAnimationFrame(updatePosition))
   }, props.delay)
 }
 
@@ -49,6 +67,15 @@ const hide = () => {
     isVisible.value = false
   }, 100)
 }
+
+window.addEventListener('resize', updatePosition)
+window.addEventListener('scroll', updatePosition, true)
+onUnmounted(() => {
+  clearTimeout(showTimer)
+  clearTimeout(hideTimer)
+  window.removeEventListener('resize', updatePosition)
+  window.removeEventListener('scroll', updatePosition, true)
+})
 </script>
 
 <style scoped>
@@ -71,6 +98,7 @@ const hide = () => {
   white-space: nowrap;
   pointer-events: none;
 }
+.fluent-tooltip { position: fixed; top: auto; right: auto; bottom: auto; left: auto; margin: 0; transform: none; }
 
 .tooltip-text {
   display: block;

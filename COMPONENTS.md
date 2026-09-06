@@ -307,6 +307,8 @@ Vue 3 Fluent Design 组件库完整 API 文档。包含所有公开组件的 Pro
 ### FluentDatePicker
 **日期选择器**
 
+使用 Fluent 自绘日历面板，不调用浏览器原生日期选择器；日历面板通过 Teleport 挂载到 `body`，可避开父级溢出裁剪。
+
 #### Props
 
 | Prop | 类型 | 必填 | 默认值 | 说明 |
@@ -325,6 +327,31 @@ Vue 3 Fluent Design 组件库完整 API 文档。包含所有公开组件的 Pro
 |---|---|
 | `@update:model-value` | |
 | `@change` | |
+
+### FluentTimePicker
+**Fluent 时间选择器（自绘面板）**
+
+#### Props
+
+| Prop | 类型 | 默认值 | 说明 |
+|---|---|---|---|
+| `model-value` | String | `''` | `HH:mm`，启用秒时为 `HH:mm:ss` |
+| `label` | String | `''` | 标签 |
+| `placeholder` | String | `'选择时间'` | 空值提示 |
+| `show-seconds` | Boolean | `false` | 显示秒列 |
+| `minute-step` | Number | `1` | 分钟步长 |
+| `disabled` | Boolean | `false` | 禁用控件 |
+| `error` | String | `''` | 错误信息 |
+| `description` | String | `''` | 辅助说明 |
+
+#### Events
+
+| 事件名 | 说明 |
+|---|---|
+| `@update:model-value` | 时间值改变 |
+| `@change` | 点击“完成”后提交 |
+
+> 控件使用 Teleport 挂载 Fluent 面板，不依赖浏览器原生时间选择器，也不会被父级 `overflow` 裁剪。
 
 ### FluentDropDownButton
 **下拉按钮**

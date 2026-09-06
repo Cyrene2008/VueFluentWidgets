@@ -119,10 +119,14 @@ watch(() => props.modelValue, (value) => {
 
 onMounted(() => {
   document.addEventListener('keydown', onKeyDown)
+  window.addEventListener('resize', updatePosition)
+  window.addEventListener('scroll', updatePosition, true)
 })
 
 onUnmounted(() => {
   document.removeEventListener('keydown', onKeyDown)
+  window.removeEventListener('resize', updatePosition)
+  window.removeEventListener('scroll', updatePosition, true)
 })
 </script>
 

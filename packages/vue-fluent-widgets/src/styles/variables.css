@@ -16,6 +16,11 @@
   --bg-mica-alt: linear-gradient(135deg, #eeeeee, #e6e6e6);
   --bg-code: #f5f5f5;
 
+  /* Material tokens */
+  --mica-wallpaper: none; /* 用户可设置为图片地址 / url(...) */
+  --material-noise: none;
+  --material-noise-opacity: 0.06;
+
   --text-primary: #1b1b1b;
   --text-secondary: #424242;
   --text-muted: #707070;
