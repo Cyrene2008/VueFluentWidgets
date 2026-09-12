@@ -45,7 +45,7 @@ jobs:
 
       - name: Set version
         working-directory: packages/vue-fluent-widgets
-        run: npm version "${{ inputs.version }}" --no-git-tag-version --allow-same-version
+        run: node -e "const fs=require('fs');const p=JSON.parse(fs.readFileSync('package.json','utf8'));p.version=process.argv[1];fs.writeFileSync('package.json',JSON.stringify(p,null,2)+'\n')" "${{ inputs.version }}"
 
       - name: Build library
         run: bun --cwd packages/vue-fluent-widgets build
@@ -55,4 +55,4 @@ jobs:
 
       - name: Publish to npm (Trusted Publishing / OIDC)
         working-directory: packages/vue-fluent-widgets
-        run: npm publish --registry https://registry.npmjs.org --access public --provenance
+        run: npm publish --workspaces=false --registry https://registry.npmjs.org --access public --provenance
