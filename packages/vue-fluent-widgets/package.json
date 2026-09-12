@@ -2,7 +2,7 @@
   "packageManager": "bun@1.3.14",
   
   "name": "vue-fluent-widgets",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A collection of Fluent Design System (WinUI3) components for Vue",
   "author": "Cyrene2008 <https://github.com/Cyrene2008>",
   "repository": {
