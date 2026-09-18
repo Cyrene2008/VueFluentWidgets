@@ -397,7 +397,7 @@ function updatePopoverPosition(trigger, popover, styleRef) {
     ? Math.max(margin, rect.top - height - 8)
     : Math.min(window.innerHeight - height - margin, rect.bottom + 8)
   const left = Math.max(margin, Math.min(rect.right - width, window.innerWidth - width - margin))
-  styleRef.value = { position: 'fixed', top: `${top}px`, left: `${left}px`, bottom: 'auto', zIndex: 100000 }
+  styleRef.value = { position: 'fixed', top: `${top}px`, left: `${left}px`, right: 'auto', bottom: 'auto', zIndex: 100000 }
 }
 
 function updateOpenPopoverPositions() {
@@ -680,15 +680,13 @@ onUnmounted(() => {
 .is-audio .control-button:hover, .is-audio .control-button.active { background: var(--bg-hover); color: var(--accent); }
 .rate-button { width: auto; min-width: 40px; padding: 0 7px; font-size: 12px; }
 .control-menu { position: relative; }
-.control-popover { position: absolute; right: 0; bottom: calc(100% + 8px); z-index: 5; padding: 6px; border: 1px solid rgba(255,255,255,.26); border-radius: 6px; background: rgba(24, 20, 24, .94); box-shadow: 0 8px 24px rgba(0,0,0,.28); color: #fff; backdrop-filter: blur(18px); }
-.is-audio .control-popover { border-color: var(--border-strong); background: var(--bg-card-solid); color: var(--text-primary); }
+.control-popover { position: absolute; right: 0; bottom: calc(100% + 8px); z-index: 5; padding: 6px; border: 1px solid var(--border-strong); border-radius: 6px; background: var(--bg-card-solid); box-shadow: var(--shadow-8); color: var(--text-primary); backdrop-filter: blur(18px); }
 .rate-options { display: grid; min-width: 72px; gap: 2px; }
 .rate-options button { min-height: 30px; padding: 0 10px; border: 0; border-radius: 4px; background: transparent; color: inherit; font: inherit; font-size: 12px; text-align: left; cursor: pointer; }
 .rate-options button:hover, .rate-options button.active { background: var(--accent); color: #fff; }
 .volume-popover { display: flex; align-items: center; gap: 8px; min-width: 166px; padding: 8px; }
 .popover-mute { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border: 0; border-radius: 4px; background: transparent; color: inherit; cursor: pointer; }
-.popover-mute:hover { background: rgba(255,255,255,.14); }
-.is-audio .popover-mute:hover { background: var(--bg-hover); }
+.popover-mute:hover { background: var(--bg-hover); }
 .volume-slider { flex: 1; width: 112px; height: 4px; accent-color: var(--accent); cursor: pointer; touch-action: none; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); }
 
